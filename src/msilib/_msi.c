@@ -3,6 +3,8 @@
  * Licensed to PSF under a contributor agreement.
  */
 
+#include "include/pythoncapi_compat.h"
+
 #include <Python.h>
 #include <fci.h>
 #include <fcntl.h>
@@ -408,7 +410,7 @@ msierror(int status)
     return NULL;
 }
 
-#include "clinic/_msi.c.h"
+#include "include/_msi.h"
 
 /*[clinic input]
 _msi.Database.Close
@@ -518,14 +520,14 @@ _msi_Record_ClearData_impl(msiobj *self)
 /*[clinic input]
 _msi.Record.SetString
     field: int
-    value: Py_UNICODE
+    value: wchar_t
     /
 
 Set field to a string value.
 [clinic start generated code]*/
 
 static PyObject *
-_msi_Record_SetString_impl(msiobj *self, int field, const Py_UNICODE *value)
+_msi_Record_SetString_impl(msiobj *self, int field, const wchar_t *value)
 /*[clinic end generated code: output=2e37505b0f11f985 input=fb8ec70a2a6148e0]*/
 {
     int status;
@@ -539,14 +541,14 @@ _msi_Record_SetString_impl(msiobj *self, int field, const Py_UNICODE *value)
 /*[clinic input]
 _msi.Record.SetStream
     field: int
-    value: Py_UNICODE
+    value: wchar_t
     /
 
 Set field to the contents of the file named value.
 [clinic start generated code]*/
 
 static PyObject *
-_msi_Record_SetStream_impl(msiobj *self, int field, const Py_UNICODE *value)
+_msi_Record_SetStream_impl(msiobj *self, int field, const wchar_t *value)
 /*[clinic end generated code: output=442facac16913b48 input=a07aa19b865e8292]*/
 {
     int status;
@@ -867,7 +869,7 @@ _msi_View_Execute(msiobj *self, PyObject *oparams)
     int status;
     MSIHANDLE params = 0;
 
-    if (oparams != Py_None) {
+    if (!Py_IsNone(oparams)) {
         if (!Py_IS_TYPE(oparams, &record_Type)) {
             PyErr_SetString(PyExc_TypeError, "Execute argument must be a record");
             return NULL;
@@ -1030,7 +1032,7 @@ static PyTypeObject msiview_Type = {
 
 /*[clinic input]
 _msi.Database.OpenView
-    sql: Py_UNICODE
+    sql: wchar_t
         the SQL statement to execute
     /
 
@@ -1038,7 +1040,7 @@ Return a view object.
 [clinic start generated code]*/
 
 static PyObject *
-_msi_Database_OpenView_impl(msiobj *self, const Py_UNICODE *sql)
+_msi_Database_OpenView_impl(msiobj *self, const wchar_t *sql)
 /*[clinic end generated code: output=e712e6a11229abfd input=50f1771f37e500df]*/
 {
     int status;
@@ -1172,7 +1174,7 @@ static PyTypeObject msidb_Type = {
 
 /*[clinic input]
 _msi.OpenDatabase
-    path: Py_UNICODE
+    path: wchar_t
         the file name of the MSI file
     persist: int
         the persistence mode
@@ -1182,7 +1184,7 @@ Return a new database object.
 [clinic start generated code]*/
 
 static PyObject *
-_msi_OpenDatabase_impl(PyObject *module, const Py_UNICODE *path, int persist)
+_msi_OpenDatabase_impl(PyObject *module, const wchar_t *path, int persist)
 /*[clinic end generated code: output=d34b7202b745de05 input=1300f3b97659559b]*/
 {
     int status;

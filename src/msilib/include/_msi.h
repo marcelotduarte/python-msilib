@@ -194,19 +194,19 @@ PyDoc_STRVAR(_msi_Record_SetString__doc__,
     {"SetString", _PyCFunction_CAST(_msi_Record_SetString), METH_FASTCALL, _msi_Record_SetString__doc__},
 
 static PyObject *
-_msi_Record_SetString_impl(msiobj *self, int field, const Py_UNICODE *value);
+_msi_Record_SetString_impl(msiobj *self, int field, const wchar_t *value);
 
 static PyObject *
 _msi_Record_SetString(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     int field;
-    const Py_UNICODE *value = NULL;
+    const wchar_t *value = NULL;
 
     if (!_PyArg_CheckPositional("SetString", nargs, 2, 2)) {
         goto exit;
     }
-    field = _PyLong_AsInt(args[0]);
+    field = PyLong_AsInt(args[0]);
     if (field == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -237,19 +237,19 @@ PyDoc_STRVAR(_msi_Record_SetStream__doc__,
     {"SetStream", _PyCFunction_CAST(_msi_Record_SetStream), METH_FASTCALL, _msi_Record_SetStream__doc__},
 
 static PyObject *
-_msi_Record_SetStream_impl(msiobj *self, int field, const Py_UNICODE *value);
+_msi_Record_SetStream_impl(msiobj *self, int field, const wchar_t *value);
 
 static PyObject *
 _msi_Record_SetStream(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
     int field;
-    const Py_UNICODE *value = NULL;
+    const wchar_t *value = NULL;
 
     if (!_PyArg_CheckPositional("SetStream", nargs, 2, 2)) {
         goto exit;
     }
-    field = _PyLong_AsInt(args[0]);
+    field = PyLong_AsInt(args[0]);
     if (field == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -292,11 +292,11 @@ _msi_Record_SetInteger(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
     if (!_PyArg_CheckPositional("SetInteger", nargs, 2, 2)) {
         goto exit;
     }
-    field = _PyLong_AsInt(args[0]);
+    field = PyLong_AsInt(args[0]);
     if (field == -1 && PyErr_Occurred()) {
         goto exit;
     }
-    value = _PyLong_AsInt(args[1]);
+    value = PyLong_AsInt(args[1]);
     if (value == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -327,7 +327,7 @@ _msi_SummaryInformation_GetProperty(msiobj *self, PyObject *arg)
     PyObject *return_value = NULL;
     int field;
 
-    field = _PyLong_AsInt(arg);
+    field = PyLong_AsInt(arg);
     if (field == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -383,7 +383,7 @@ _msi_SummaryInformation_SetProperty(msiobj *self, PyObject *const *args, Py_ssiz
     if (!_PyArg_CheckPositional("SetProperty", nargs, 2, 2)) {
         goto exit;
     }
-    field = _PyLong_AsInt(args[0]);
+    field = PyLong_AsInt(args[0]);
     if (field == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -464,7 +464,7 @@ _msi_View_GetColumnInfo(msiobj *self, PyObject *arg)
     PyObject *return_value = NULL;
     int kind;
 
-    kind = _PyLong_AsInt(arg);
+    kind = PyLong_AsInt(arg);
     if (kind == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -501,7 +501,7 @@ _msi_View_Modify(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
     if (!_PyArg_CheckPositional("Modify", nargs, 2, 2)) {
         goto exit;
     }
-    kind = _PyLong_AsInt(args[0]);
+    kind = PyLong_AsInt(args[0]);
     if (kind == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -543,13 +543,13 @@ PyDoc_STRVAR(_msi_Database_OpenView__doc__,
     {"OpenView", (PyCFunction)_msi_Database_OpenView, METH_O, _msi_Database_OpenView__doc__},
 
 static PyObject *
-_msi_Database_OpenView_impl(msiobj *self, const Py_UNICODE *sql);
+_msi_Database_OpenView_impl(msiobj *self, const wchar_t *sql);
 
 static PyObject *
 _msi_Database_OpenView(msiobj *self, PyObject *arg)
 {
     PyObject *return_value = NULL;
-    const Py_UNICODE *sql = NULL;
+    const wchar_t *sql = NULL;
 
     if (!PyUnicode_Check(arg)) {
         _PyArg_BadArgument("OpenView", "argument", "str", arg);
@@ -607,7 +607,7 @@ _msi_Database_GetSummaryInformation(msiobj *self, PyObject *arg)
     PyObject *return_value = NULL;
     int count;
 
-    count = _PyLong_AsInt(arg);
+    count = PyLong_AsInt(arg);
     if (count == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -632,13 +632,13 @@ PyDoc_STRVAR(_msi_OpenDatabase__doc__,
     {"OpenDatabase", _PyCFunction_CAST(_msi_OpenDatabase), METH_FASTCALL, _msi_OpenDatabase__doc__},
 
 static PyObject *
-_msi_OpenDatabase_impl(PyObject *module, const Py_UNICODE *path, int persist);
+_msi_OpenDatabase_impl(PyObject *module, const wchar_t *path, int persist);
 
 static PyObject *
 _msi_OpenDatabase(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *return_value = NULL;
-    const Py_UNICODE *path = NULL;
+    const wchar_t *path = NULL;
     int persist;
 
     if (!_PyArg_CheckPositional("OpenDatabase", nargs, 2, 2)) {
@@ -652,7 +652,7 @@ _msi_OpenDatabase(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
     if (path == NULL) {
         goto exit;
     }
-    persist = _PyLong_AsInt(args[1]);
+    persist = PyLong_AsInt(args[1]);
     if (persist == -1 && PyErr_Occurred()) {
         goto exit;
     }
@@ -686,7 +686,7 @@ _msi_CreateRecord(PyObject *module, PyObject *arg)
     PyObject *return_value = NULL;
     int count;
 
-    count = _PyLong_AsInt(arg);
+    count = PyLong_AsInt(arg);
     if (count == -1 && PyErr_Occurred()) {
         goto exit;
     }

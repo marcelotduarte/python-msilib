@@ -1,0 +1,4 @@
+include Makefile
+include requirements-dev.txt
+recursive-include src *.c *.h
+recursive-include tests *.md *.py *.txt

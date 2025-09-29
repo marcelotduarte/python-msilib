@@ -1,0 +1,45 @@
+ci:
+  autoupdate_schedule: monthly
+  skip: [shellcheck]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: trailing-whitespace
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+        additional_dependencies:
+          - validate-pyproject-schema-store[all]>=2024.11.22
+
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shell script analysis tool
+        entry: shellcheck
+        language: system
+        files: ^(.*.sh)$
+
+  - repo: local
+    hooks:
+      - id: pythoncapi
+        name: upgrade pythoncapi
+        entry: ci/pythoncapi.sh
+        language: system
+        files: ^(
+            src/msilib/include/pythoncapi_compat.h|
+            src/msilib/include/.*.h|src/msilib/.*.c)$
