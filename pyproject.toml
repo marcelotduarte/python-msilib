@@ -28,8 +28,8 @@ classifiers = [
 ]
 dynamic = ["version"]
 keywords = ["msilib"]
-#license = "MIT"
-#license-files = ["LICENSE"]
+license = "PSF-2.0"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.13"
 
