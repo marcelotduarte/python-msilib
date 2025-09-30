@@ -54,7 +54,7 @@ jobs:
       matrix:
         os: [windows]
         os-version: [latest]
-        python-version: ["3.13"]
+        python-version: ["3.13", "3.14.0-rc.3"]
     defaults:
       run:
         shell: bash

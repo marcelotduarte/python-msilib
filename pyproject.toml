@@ -109,9 +109,6 @@ optional_value = "final"
 build-frontend = "build[uv]"
 build-verbosity = 1
 #enable = ["cpython-freethreading"]
-skip = [
-    "cp3{14}*-win*",
-]
 
 [tool.coverage.html]
 directory = "build/coverage_html_report"
