@@ -65,6 +65,7 @@ version = {attr = "msilib.__version__"}
 [[tool.setuptools.ext-modules]]
 name = "msilib._msi"
 sources = ["src/msilib/_msi.c"]
+depends = ["src/msilib/include/_msi.h"]
 libraries = ["msi","rpcrt4", "cabinet"]
 
 [tool.setuptools.packages.find]

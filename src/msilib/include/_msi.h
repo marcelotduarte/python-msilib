@@ -2,11 +2,9 @@
 preserve
 [clinic start generated code]*/
 
-#if defined(Py_BUILD_CORE) && !defined(Py_BUILD_CORE_MODULE)
-#  include "pycore_gc.h"            // PyGC_Head
-#  include "pycore_runtime.h"       // _Py_ID()
-#endif
-
+// Add _PyArg_NoPositional and _PyArg_BadArgument
+#define Py_BUILD_CORE
+#include <internal/pycore_modsupport.h>
 
 PyDoc_STRVAR(_msi_UuidCreate__doc__,
 "UuidCreate($module, /)\n"
