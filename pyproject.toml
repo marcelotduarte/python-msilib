@@ -109,7 +109,7 @@ optional_value = "final"
 [tool.cibuildwheel]
 build-frontend = "build[uv]"
 build-verbosity = 1
-#enable = ["cpython-freethreading"]
+enable = ["cpython-freethreading"]
 
 [tool.coverage.html]
 directory = "build/coverage_html_report"
