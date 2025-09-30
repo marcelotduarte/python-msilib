@@ -1,10 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
+  push:
     branches:
       - main
   workflow_dispatch:
@@ -106,7 +104,7 @@ jobs:
     needs:
       - tests
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     runs-on: ubuntu-latest
     steps:

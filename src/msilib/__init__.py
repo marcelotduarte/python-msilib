@@ -7,7 +7,7 @@ import re
 import string
 import sys
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 AMD64 = "AMD64" in sys.version
 # Keep msilib.Win64 around to preserve backwards compatibility.
