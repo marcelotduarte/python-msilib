@@ -26,7 +26,7 @@ jobs:
                   "os": "windows",
                   "os-version": "latest",
                   "arch": "x86_64",
-                  "tag": "cp3{13,14,14t}-win_amd64",
+                  "tag": "cp3{13,13t,14,14t}-win_amd64",
               },
           ]
           if "${{ github.event_name }}" != "pull_request":
@@ -35,13 +35,13 @@ jobs:
                     "os": "windows",
                     "os-version": "11-arm",
                     "arch": "arm64",
-                    "tag": "cp3{13,14,14t}-win_arm64",
+                    "tag": "cp3{13,13t,14,14t}-win_arm64",
                 },
                 {
                     "os": "windows",
                     "os-version": "latest",
                     "arch": "x86",
-                    "tag": "cp3{13,14,14t}-win32",
+                    "tag": "cp3{13,13t,14,14t}-win32",
                 },
             ]
           with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
