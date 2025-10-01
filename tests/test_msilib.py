@@ -1,16 +1,16 @@
 """Test suite for the code in msilib."""
 
-import msilib
-import msilib.schema
-
 import pytest
+
+msilib = pytest.importorskip("msilib", reason="Windows tests")
+schema = pytest.importorskip("msilib.schema", reason="Windows tests")
 
 
 @pytest.fixture
 def db(tmp_path):  # -> msilib.Database
     path = tmp_path / "test.msi"
     db = msilib.init_database(
-        str(path), msilib.schema, "Python Tests", "product_code", "1.0", "PSF"
+        path.as_posix(), schema, "Python Tests", "product_code", "1.0", "PSF"
     )
     yield db
     db.Close()

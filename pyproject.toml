@@ -135,6 +135,7 @@ source = [
 [tool.coverage.run]
 command_line = "-m pytest"
 source = ["msilib"]
+parallel = true
 relative_files = true
 
 [tool.pytest.ini_options]
