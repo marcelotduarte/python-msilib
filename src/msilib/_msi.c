@@ -6,7 +6,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 // clang-format off
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 // clang-format on
 #include "include/pythoncapi_compat.h"
