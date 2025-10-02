@@ -3,15 +3,18 @@
  * Licensed to PSF under a contributor agreement.
  */
 
-#include "include/pythoncapi_compat.h"
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
+// clang-format off
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+// clang-format on
+#include "include/pythoncapi_compat.h"
 #include <fci.h>
 #include <fcntl.h>
-#include <windows.h>
 #include <msi.h>
-#include <msiquery.h>
 #include <msidefs.h>
+#include <msiquery.h>
 #include <rpc.h>
 
 /*[clinic input]
@@ -23,7 +26,7 @@ class _msi.Database "msiobj *" "&msidb_Type"
 [clinic start generated code]*/
 /*[clinic end generated code: output=da39a3ee5e6b4b0d input=89a3605762cf4bdc]*/
 
-static PyObject *MSIError;
+static PyObject* MSIError;
 
 /*[clinic input]
 _msi.UuidCreate
@@ -31,20 +34,20 @@ _msi.UuidCreate
 Return the string representation of a new unique identifier.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_UuidCreate_impl(PyObject *module)
+static PyObject* _msi_UuidCreate_impl(PyObject* module)
 /*[clinic end generated code: output=534ecf36f10af98e input=168024ab4b3e832b]*/
 {
     UUID result;
-    wchar_t *cresult;
-    PyObject *oresult;
+    wchar_t* cresult;
+    PyObject* oresult;
 
     /* May return ok, local only, and no address.
        For local only, the documentation says we still get a uuid.
        For RPC_S_UUID_NO_ADDRESS, it's not clear whether we can
        use the result. */
     if (UuidCreate(&result) == RPC_S_UUID_NO_ADDRESS) {
-        PyErr_SetString(PyExc_NotImplementedError, "processing 'no address' result");
+        PyErr_SetString(
+            PyExc_NotImplementedError, "processing 'no address' result");
         return NULL;
     }
 
@@ -56,25 +59,22 @@ _msi_UuidCreate_impl(PyObject *module)
     oresult = PyUnicode_FromWideChar(cresult, wcslen(cresult));
     RpcStringFreeW(&cresult);
     return oresult;
-
 }
 
 /* Helper for converting file names from UTF-8 to wchat_t*.  */
-static wchar_t *
-utf8_to_wchar(const char *s, int *err)
+static wchar_t* utf8_to_wchar(const char* s, int* err)
 {
-    PyObject *obj = PyUnicode_FromString(s);
+    PyObject* obj = PyUnicode_FromString(s);
     if (obj == NULL) {
         if (PyErr_ExceptionMatches(PyExc_MemoryError)) {
             *err = ENOMEM;
-        }
-        else {
+        } else {
             *err = EINVAL;
         }
         PyErr_Clear();
         return NULL;
     }
-    wchar_t *ws = PyUnicode_AsWideCharString(obj, NULL);
+    wchar_t* ws = PyUnicode_AsWideCharString(obj, NULL);
     if (ws == NULL) {
         *err = ENOMEM;
         PyErr_Clear();
@@ -85,19 +85,13 @@ utf8_to_wchar(const char *s, int *err)
 
 /* FCI callback functions */
 
-static FNFCIALLOC(cb_alloc)
-{
-    return PyMem_RawMalloc(cb);
-}
+static FNFCIALLOC(cb_alloc) { return PyMem_RawMalloc(cb); }
 
-static FNFCIFREE(cb_free)
-{
-    PyMem_RawFree(memory);
-}
+static FNFCIFREE(cb_free) { PyMem_RawFree(memory); }
 
 static FNFCIOPEN(cb_open)
 {
-    wchar_t *ws = utf8_to_wchar(pszFile, err);
+    wchar_t* ws = utf8_to_wchar(pszFile, err);
     if (ws == NULL) {
         return -1;
     }
@@ -142,7 +136,7 @@ static FNFCISEEK(cb_seek)
 
 static FNFCIDELETE(cb_delete)
 {
-    wchar_t *ws = utf8_to_wchar(pszFile, err);
+    wchar_t* ws = utf8_to_wchar(pszFile, err);
     if (ws == NULL) {
         return -1;
     }
@@ -153,28 +147,27 @@ static FNFCIDELETE(cb_delete)
     return result;
 }
 
-static FNFCIFILEPLACED(cb_fileplaced)
-{
-    return 0;
-}
+static FNFCIFILEPLACED(cb_fileplaced) { return 0; }
 
 static FNFCIGETTEMPFILE(cb_gettempfile)
 {
-    char *name = _tempnam("", "tmp");
+    char* name = _tempnam("", "tmp");
     if ((name != NULL) && ((int)strlen(name) < cbTempName)) {
         strcpy(pszTempName, name);
         free(name);
         return TRUE;
     }
 
-    if (name) free(name);
+    if (name)
+        free(name);
     return FALSE;
 }
 
 static FNFCISTATUS(cb_status)
 {
     if (pv) {
-        PyObject *result = PyObject_CallMethod(pv, "status", "iii", typeStatus, cb1, cb2);
+        PyObject* result
+            = PyObject_CallMethod(pv, "status", "iii", typeStatus, cb1, cb2);
         if (result == NULL)
             return -1;
         Py_DECREF(result);
@@ -185,7 +178,8 @@ static FNFCISTATUS(cb_status)
 static FNFCIGETNEXTCABINET(cb_getnextcabinet)
 {
     if (pv) {
-        PyObject *result = PyObject_CallMethod(pv, "getnextcabinet", "i", pccab->iCab);
+        PyObject* result
+            = PyObject_CallMethod(pv, "getnextcabinet", "i", pccab->iCab);
         if (result == NULL)
             return -1;
         if (!PyBytes_Check(result)) {
@@ -207,7 +201,7 @@ static FNFCIGETOPENINFO(cb_getopeninfo)
     FILETIME filetime;
     HANDLE handle;
 
-    wchar_t *ws = utf8_to_wchar(pszName, err);
+    wchar_t* ws = utf8_to_wchar(pszName, err);
     if (ws == NULL) {
         return -1;
     }
@@ -229,8 +223,8 @@ static FNFCIGETOPENINFO(cb_getopeninfo)
     FileTimeToLocalFileTime(&bhfi.ftLastWriteTime, &filetime);
     FileTimeToDosDateTime(&filetime, pdate, ptime);
 
-    *pattribs = (int)(bhfi.dwFileAttributes &
-        (_A_RDONLY | _A_SYSTEM | _A_HIDDEN | _A_ARCH));
+    *pattribs = (int)(bhfi.dwFileAttributes
+        & (_A_RDONLY | _A_SYSTEM | _A_HIDDEN | _A_ARCH));
 
     CloseHandle(handle);
 
@@ -251,11 +245,11 @@ _msi.FCICreate
 Create a new CAB file.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_FCICreate_impl(PyObject *module, const char *cabname, PyObject *files)
+static PyObject* _msi_FCICreate_impl(
+    PyObject* module, const char* cabname, PyObject* files)
 /*[clinic end generated code: output=55dc05728361b799 input=1d2d75fdc8b44b71]*/
 {
-    const char *p;
+    const char* p;
     CCAB ccab;
     HFCI hfci;
     ERF erf;
@@ -282,8 +276,8 @@ _msi_FCICreate_impl(PyObject *module, const char *cabname, PyObject *files)
         if (*p == '\\' || *p == '/')
             i = p - cabname + 1;
 
-    if (i >= sizeof(ccab.szCabPath) ||
-        strlen(cabname+i) >= sizeof(ccab.szCab)) {
+    if (i >= sizeof(ccab.szCabPath)
+        || strlen(cabname + i) >= sizeof(ccab.szCab)) {
         PyErr_SetString(PyExc_ValueError, "path name too long");
         return 0;
     }
@@ -291,34 +285,33 @@ _msi_FCICreate_impl(PyObject *module, const char *cabname, PyObject *files)
     if (i > 0) {
         memcpy(ccab.szCabPath, cabname, i);
         ccab.szCabPath[i] = '\0';
-        strcpy(ccab.szCab, cabname+i);
+        strcpy(ccab.szCab, cabname + i);
     } else {
         strcpy(ccab.szCabPath, ".\\");
         strcpy(ccab.szCab, cabname);
     }
 
-    hfci = FCICreate(&erf, cb_fileplaced, cb_alloc, cb_free,
-        cb_open, cb_read, cb_write, cb_close, cb_seek, cb_delete,
-        cb_gettempfile, &ccab, NULL);
+    hfci = FCICreate(&erf, cb_fileplaced, cb_alloc, cb_free, cb_open, cb_read,
+        cb_write, cb_close, cb_seek, cb_delete, cb_gettempfile, &ccab, NULL);
 
     if (hfci == NULL) {
         PyErr_Format(PyExc_ValueError, "FCI error %d", erf.erfOper);
         return NULL;
     }
 
-    for (i=0; i < PyList_GET_SIZE(files); i++) {
-        PyObject *item = PyList_GET_ITEM(files, i);
+    for (i = 0; i < PyList_GET_SIZE(files); i++) {
+        PyObject* item = PyList_GET_ITEM(files, i);
         char *filename, *cabname;
 
         if (!PyArg_ParseTuple(item, "ss", &filename, &cabname)) {
-            PyErr_SetString(PyExc_TypeError, "FCICreate expects a list of tuples containing two strings");
+            PyErr_SetString(PyExc_TypeError,
+                "FCICreate expects a list of tuples containing two strings");
             FCIDestroy(hfci);
             return NULL;
         }
 
-        if (!FCIAddFile(hfci, filename, cabname, FALSE,
-            cb_getnextcabinet, cb_status, cb_getopeninfo,
-            tcompTYPE_MSZIP))
+        if (!FCIAddFile(hfci, filename, cabname, FALSE, cb_getnextcabinet,
+                cb_status, cb_getopeninfo, tcompTYPE_MSZIP))
             goto err;
     }
 
@@ -330,8 +323,9 @@ _msi_FCICreate_impl(PyObject *module, const char *cabname, PyObject *files)
 
     Py_RETURN_NONE;
 err:
-    if(erf.fError)
-        PyErr_Format(PyExc_ValueError, "FCI error %d", erf.erfOper); /* XXX better error type */
+    if (erf.fError)
+        PyErr_Format(PyExc_ValueError, "FCI error %d",
+            erf.erfOper); /* XXX better error type */
     else
         PyErr_SetString(PyExc_ValueError, "FCI general error");
 
@@ -339,30 +333,27 @@ err:
     return NULL;
 }
 
-typedef struct msiobj{
-    PyObject_HEAD
-    MSIHANDLE h;
-}msiobj;
+typedef struct msiobj {
+    PyObject_HEAD MSIHANDLE h;
+} msiobj;
 
-static void
-msiobj_dealloc(msiobj* msidb)
+static void msiobj_dealloc(msiobj* msidb)
 {
     MsiCloseHandle(msidb->h);
     msidb->h = 0;
     PyObject_Free(msidb);
 }
 
-static PyObject*
-msierror(int status)
+static PyObject* msierror(int status)
 {
     int code;
     char buf[2000];
-    char *res = buf;
+    char* res = buf;
     DWORD size = Py_ARRAY_LENGTH(buf);
     MSIHANDLE err = MsiGetLastErrorRecord();
 
     if (err == 0) {
-        switch(status) {
+        switch (status) {
         case ERROR_ACCESS_DENIED:
             PyErr_SetString(MSIError, "access denied");
             return NULL;
@@ -395,13 +386,13 @@ msierror(int status)
 
     code = MsiRecordGetInteger(err, 1); /* XXX code */
     if (MsiFormatRecord(0, err, res, &size) == ERROR_MORE_DATA) {
-        res = malloc(size+1);
+        res = malloc(size + 1);
         if (res == NULL) {
             MsiCloseHandle(err);
             return PyErr_NoMemory();
         }
         MsiFormatRecord(0, err, res, &size);
-        res[size]='\0';
+        res[size] = '\0';
     }
     MsiCloseHandle(err);
     PyErr_SetString(MSIError, res);
@@ -418,8 +409,7 @@ _msi.Database.Close
 Close the database object.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Database_Close_impl(msiobj *self)
+static PyObject* _msi_Database_Close_impl(msiobj* self)
 /*[clinic end generated code: output=ddf2d7712ea804f1 input=104330ce4a486187]*/
 {
     int status;
@@ -438,8 +428,7 @@ _msi.Record.GetFieldCount
 Return the number of fields of the record.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Record_GetFieldCount_impl(msiobj *self)
+static PyObject* _msi_Record_GetFieldCount_impl(msiobj* self)
 /*[clinic end generated code: output=112795079c904398 input=5fb9d4071b28897b]*/
 {
     return PyLong_FromLong(MsiRecordGetFieldCount(self->h));
@@ -453,18 +442,17 @@ _msi.Record.GetInteger
 Return the value of field as an integer where possible.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Record_GetInteger_impl(msiobj *self, unsigned int field)
+static PyObject* _msi_Record_GetInteger_impl(msiobj* self, unsigned int field)
 /*[clinic end generated code: output=7174ebb6e8ed1c79 input=d19209947e2bfe61]*/
 {
     int status;
 
     status = MsiRecordGetInteger(self->h, field);
-    if (status == MSI_NULL_INTEGER){
+    if (status == MSI_NULL_INTEGER) {
         PyErr_SetString(MSIError, "could not convert record field to integer");
         return NULL;
     }
-    return PyLong_FromLong((long) status);
+    return PyLong_FromLong((long)status);
 }
 
 /*[clinic input]
@@ -475,25 +463,24 @@ _msi.Record.GetString
 Return the value of field as a string where possible.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Record_GetString_impl(msiobj *self, unsigned int field)
+static PyObject* _msi_Record_GetString_impl(msiobj* self, unsigned int field)
 /*[clinic end generated code: output=f670d1b484cfa47c input=ffa11f21450b77d8]*/
 {
     unsigned int status;
     WCHAR buf[2000];
-    WCHAR *res = buf;
+    WCHAR* res = buf;
     DWORD size = Py_ARRAY_LENGTH(buf);
     PyObject* string;
 
     status = MsiRecordGetStringW(self->h, field, res, &size);
     if (status == ERROR_MORE_DATA) {
-        res = (WCHAR*) malloc((size + 1)*sizeof(WCHAR));
+        res = (WCHAR*)malloc((size + 1) * sizeof(WCHAR));
         if (res == NULL)
             return PyErr_NoMemory();
         status = MsiRecordGetStringW(self->h, field, res, &size);
     }
     if (status != ERROR_SUCCESS)
-        return msierror((int) status);
+        return msierror((int)status);
     string = PyUnicode_FromWideChar(res, size);
     if (buf != res)
         free(res);
@@ -506,8 +493,7 @@ _msi.Record.ClearData
 Set all fields of the record to 0.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Record_ClearData_impl(msiobj *self)
+static PyObject* _msi_Record_ClearData_impl(msiobj* self)
 /*[clinic end generated code: output=1891467214b977f4 input=2a911c95aaded102]*/
 {
     int status = MsiRecordClearData(self->h);
@@ -526,8 +512,8 @@ _msi.Record.SetString
 Set field to a string value.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Record_SetString_impl(msiobj *self, int field, const wchar_t *value)
+static PyObject* _msi_Record_SetString_impl(
+    msiobj* self, int field, const wchar_t* value)
 /*[clinic end generated code: output=2e37505b0f11f985 input=fb8ec70a2a6148e0]*/
 {
     int status;
@@ -547,8 +533,8 @@ _msi.Record.SetStream
 Set field to the contents of the file named value.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Record_SetStream_impl(msiobj *self, int field, const wchar_t *value)
+static PyObject* _msi_Record_SetStream_impl(
+    msiobj* self, int field, const wchar_t* value)
 /*[clinic end generated code: output=442facac16913b48 input=a07aa19b865e8292]*/
 {
     int status;
@@ -568,8 +554,8 @@ _msi.Record.SetInteger
 Set field to an integer value.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Record_SetInteger_impl(msiobj *self, int field, int value)
+static PyObject* _msi_Record_SetInteger_impl(
+    msiobj* self, int field, int value)
 /*[clinic end generated code: output=669e8647775d0ce7 input=c571aa775e7e451b]*/
 {
     int status;
@@ -580,8 +566,7 @@ _msi_Record_SetInteger_impl(msiobj *self, int field, int value)
     Py_RETURN_NONE;
 }
 
-
-
+// clang-format off
 static PyMethodDef record_methods[] = {
     _MSI_RECORD_GETFIELDCOUNT_METHODDEF
     _MSI_RECORD_GETINTEGER_METHODDEF
@@ -592,55 +577,54 @@ static PyMethodDef record_methods[] = {
     _MSI_RECORD_CLEARDATA_METHODDEF
     { NULL, NULL }
 };
+// clang-format on
 
 static PyTypeObject record_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "_msi.Record",          /*tp_name*/
-        sizeof(msiobj), /*tp_basicsize*/
-        0,                      /*tp_itemsize*/
-        /* methods */
-        (destructor)msiobj_dealloc, /*tp_dealloc*/
-        0,                      /*tp_vectorcall_offset*/
-        0,                      /*tp_getattr*/
-        0,                      /*tp_setattr*/
-        0,                      /*tp_as_async*/
-        0,                      /*tp_repr*/
-        0,                      /*tp_as_number*/
-        0,                      /*tp_as_sequence*/
-        0,                      /*tp_as_mapping*/
-        0,                      /*tp_hash*/
-        0,                      /*tp_call*/
-        0,                      /*tp_str*/
-        PyObject_GenericGetAttr,/*tp_getattro*/
-        PyObject_GenericSetAttr,/*tp_setattro*/
-        0,                      /*tp_as_buffer*/
-        Py_TPFLAGS_DEFAULT,     /*tp_flags*/
-        0,                      /*tp_doc*/
-        0,                      /*tp_traverse*/
-        0,                      /*tp_clear*/
-        0,                      /*tp_richcompare*/
-        0,                      /*tp_weaklistoffset*/
-        0,                      /*tp_iter*/
-        0,                      /*tp_iternext*/
-        record_methods,           /*tp_methods*/
-        0,                      /*tp_members*/
-        0,                      /*tp_getset*/
-        0,                      /*tp_base*/
-        0,                      /*tp_dict*/
-        0,                      /*tp_descr_get*/
-        0,                      /*tp_descr_set*/
-        0,                      /*tp_dictoffset*/
-        0,                      /*tp_init*/
-        0,                      /*tp_alloc*/
-        0,                      /*tp_new*/
-        0,                      /*tp_free*/
-        0,                      /*tp_is_gc*/
+    PyVarObject_HEAD_INIT(NULL, 0) "_msi.Record", /*tp_name*/
+    sizeof(msiobj),                               /*tp_basicsize*/
+    0,                                            /*tp_itemsize*/
+    /* methods */
+    (destructor)msiobj_dealloc, /*tp_dealloc*/
+    0,                          /*tp_vectorcall_offset*/
+    0,                          /*tp_getattr*/
+    0,                          /*tp_setattr*/
+    0,                          /*tp_as_async*/
+    0,                          /*tp_repr*/
+    0,                          /*tp_as_number*/
+    0,                          /*tp_as_sequence*/
+    0,                          /*tp_as_mapping*/
+    0,                          /*tp_hash*/
+    0,                          /*tp_call*/
+    0,                          /*tp_str*/
+    PyObject_GenericGetAttr,    /*tp_getattro*/
+    PyObject_GenericSetAttr,    /*tp_setattro*/
+    0,                          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT,         /*tp_flags*/
+    0,                          /*tp_doc*/
+    0,                          /*tp_traverse*/
+    0,                          /*tp_clear*/
+    0,                          /*tp_richcompare*/
+    0,                          /*tp_weaklistoffset*/
+    0,                          /*tp_iter*/
+    0,                          /*tp_iternext*/
+    record_methods,             /*tp_methods*/
+    0,                          /*tp_members*/
+    0,                          /*tp_getset*/
+    0,                          /*tp_base*/
+    0,                          /*tp_dict*/
+    0,                          /*tp_descr_get*/
+    0,                          /*tp_descr_set*/
+    0,                          /*tp_dictoffset*/
+    0,                          /*tp_init*/
+    0,                          /*tp_alloc*/
+    0,                          /*tp_new*/
+    0,                          /*tp_free*/
+    0,                          /*tp_is_gc*/
 };
 
-static PyObject*
-record_new(MSIHANDLE h)
+static PyObject* record_new(MSIHANDLE h)
 {
-    msiobj *result = PyObject_New(struct msiobj, &record_Type);
+    msiobj* result = PyObject_New(struct msiobj, &record_Type);
 
     if (!result) {
         MsiCloseHandle(h);
@@ -662,53 +646,53 @@ _msi.SummaryInformation.GetProperty
 Return a property of the summary.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_SummaryInformation_GetProperty_impl(msiobj *self, int field)
+static PyObject* _msi_SummaryInformation_GetProperty_impl(
+    msiobj* self, int field)
 /*[clinic end generated code: output=f8946a33ee14f6ef input=f8dfe2c890d6cb8b]*/
 {
     int status;
-    PyObject *result;
+    PyObject* result;
     UINT type;
     INT ival;
     FILETIME fval;
     char sbuf[1000];
-    char *sval = sbuf;
+    char* sval = sbuf;
     DWORD ssize = sizeof(sbuf);
 
-    status = MsiSummaryInfoGetProperty(self->h, field, &type, &ival,
-        &fval, sval, &ssize);
+    status = MsiSummaryInfoGetProperty(
+        self->h, field, &type, &ival, &fval, sval, &ssize);
     if (status == ERROR_MORE_DATA) {
         ssize++;
         sval = malloc(ssize);
         if (sval == NULL) {
             return PyErr_NoMemory();
         }
-        status = MsiSummaryInfoGetProperty(self->h, field, &type, &ival,
-            &fval, sval, &ssize);
+        status = MsiSummaryInfoGetProperty(
+            self->h, field, &type, &ival, &fval, sval, &ssize);
     }
     if (status != ERROR_SUCCESS) {
         return msierror(status);
     }
 
-    switch(type) {
-        case VT_I2:
-        case VT_I4:
-            result = PyLong_FromLong(ival);
-            break;
-        case VT_FILETIME:
-            PyErr_SetString(PyExc_NotImplementedError, "FILETIME result");
-            result = NULL;
-            break;
-        case VT_LPSTR:
-            result = PyBytes_FromStringAndSize(sval, ssize);
-            break;
-        case VT_EMPTY:
-            result = Py_NewRef(Py_None);
-            break;
-        default:
-            PyErr_Format(PyExc_NotImplementedError, "result of type %d", type);
-            result = NULL;
-            break;
+    switch (type) {
+    case VT_I2:
+    case VT_I4:
+        result = PyLong_FromLong(ival);
+        break;
+    case VT_FILETIME:
+        PyErr_SetString(PyExc_NotImplementedError, "FILETIME result");
+        result = NULL;
+        break;
+    case VT_LPSTR:
+        result = PyBytes_FromStringAndSize(sval, ssize);
+        break;
+    case VT_EMPTY:
+        result = Py_NewRef(Py_None);
+        break;
+    default:
+        PyErr_Format(PyExc_NotImplementedError, "result of type %d", type);
+        result = NULL;
+        break;
     }
     if (sval != sbuf)
         free(sval);
@@ -721,8 +705,7 @@ _msi.SummaryInformation.GetPropertyCount
 Return the number of summary properties.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_SummaryInformation_GetPropertyCount_impl(msiobj *self)
+static PyObject* _msi_SummaryInformation_GetPropertyCount_impl(msiobj* self)
 /*[clinic end generated code: output=68e94b2aeee92b3d input=2e71e985586d82dc]*/
 {
     int status;
@@ -746,28 +729,27 @@ _msi.SummaryInformation.SetProperty
 Set a property.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_SummaryInformation_SetProperty_impl(msiobj *self, int field,
-                                         PyObject *data)
+static PyObject* _msi_SummaryInformation_SetProperty_impl(
+    msiobj* self, int field, PyObject* data)
 /*[clinic end generated code: output=3d4692c8984bb675 input=f2a7811b905abbed]*/
 {
     int status;
 
     if (PyUnicode_Check(data)) {
-        WCHAR *value = PyUnicode_AsWideCharString(data, NULL);
+        WCHAR* value = PyUnicode_AsWideCharString(data, NULL);
         if (value == NULL) {
             return NULL;
         }
-        status = MsiSummaryInfoSetPropertyW(self->h, field, VT_LPSTR,
-            0, NULL, value);
+        status = MsiSummaryInfoSetPropertyW(
+            self->h, field, VT_LPSTR, 0, NULL, value);
         PyMem_Free(value);
     } else if (PyLong_CheckExact(data)) {
         long value = PyLong_AsLong(data);
         if (value == -1 && PyErr_Occurred()) {
             return NULL;
         }
-        status = MsiSummaryInfoSetProperty(self->h, field, VT_I4,
-            value, NULL, NULL);
+        status = MsiSummaryInfoSetProperty(
+            self->h, field, VT_I4, value, NULL, NULL);
     } else {
         PyErr_SetString(PyExc_TypeError, "unsupported type");
         return NULL;
@@ -779,15 +761,13 @@ _msi_SummaryInformation_SetProperty_impl(msiobj *self, int field,
     Py_RETURN_NONE;
 }
 
-
 /*[clinic input]
 _msi.SummaryInformation.Persist
 
 Write the modified properties to the summary information stream.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_SummaryInformation_Persist_impl(msiobj *self)
+static PyObject* _msi_SummaryInformation_Persist_impl(msiobj* self)
 /*[clinic end generated code: output=c564bd17f5e122c9 input=e3dda9d530095ef7]*/
 {
     int status;
@@ -798,6 +778,7 @@ _msi_SummaryInformation_Persist_impl(msiobj *self)
     Py_RETURN_NONE;
 }
 
+// clang-format off
 static PyMethodDef summary_methods[] = {
     _MSI_SUMMARYINFORMATION_GETPROPERTY_METHODDEF
     _MSI_SUMMARYINFORMATION_GETPROPERTYCOUNT_METHODDEF
@@ -805,49 +786,49 @@ static PyMethodDef summary_methods[] = {
     _MSI_SUMMARYINFORMATION_PERSIST_METHODDEF
     { NULL, NULL }
 };
+// clang-format on
 
 static PyTypeObject summary_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "_msi.SummaryInformation",              /*tp_name*/
-        sizeof(msiobj), /*tp_basicsize*/
-        0,                      /*tp_itemsize*/
-        /* methods */
-        (destructor)msiobj_dealloc, /*tp_dealloc*/
-        0,                      /*tp_vectorcall_offset*/
-        0,                      /*tp_getattr*/
-        0,                      /*tp_setattr*/
-        0,                      /*tp_as_async*/
-        0,                      /*tp_repr*/
-        0,                      /*tp_as_number*/
-        0,                      /*tp_as_sequence*/
-        0,                      /*tp_as_mapping*/
-        0,                      /*tp_hash*/
-        0,                      /*tp_call*/
-        0,                      /*tp_str*/
-        PyObject_GenericGetAttr,/*tp_getattro*/
-        PyObject_GenericSetAttr,/*tp_setattro*/
-        0,                      /*tp_as_buffer*/
-        Py_TPFLAGS_DEFAULT,     /*tp_flags*/
-        0,                      /*tp_doc*/
-        0,                      /*tp_traverse*/
-        0,                      /*tp_clear*/
-        0,                      /*tp_richcompare*/
-        0,                      /*tp_weaklistoffset*/
-        0,                      /*tp_iter*/
-        0,                      /*tp_iternext*/
-        summary_methods,        /*tp_methods*/
-        0,                      /*tp_members*/
-        0,                      /*tp_getset*/
-        0,                      /*tp_base*/
-        0,                      /*tp_dict*/
-        0,                      /*tp_descr_get*/
-        0,                      /*tp_descr_set*/
-        0,                      /*tp_dictoffset*/
-        0,                      /*tp_init*/
-        0,                      /*tp_alloc*/
-        0,                      /*tp_new*/
-        0,                      /*tp_free*/
-        0,                      /*tp_is_gc*/
+    PyVarObject_HEAD_INIT(NULL, 0) "_msi.SummaryInformation", /*tp_name*/
+    sizeof(msiobj),                                           /*tp_basicsize*/
+    0,                                                        /*tp_itemsize*/
+    /* methods */
+    (destructor)msiobj_dealloc, /*tp_dealloc*/
+    0,                          /*tp_vectorcall_offset*/
+    0,                          /*tp_getattr*/
+    0,                          /*tp_setattr*/
+    0,                          /*tp_as_async*/
+    0,                          /*tp_repr*/
+    0,                          /*tp_as_number*/
+    0,                          /*tp_as_sequence*/
+    0,                          /*tp_as_mapping*/
+    0,                          /*tp_hash*/
+    0,                          /*tp_call*/
+    0,                          /*tp_str*/
+    PyObject_GenericGetAttr,    /*tp_getattro*/
+    PyObject_GenericSetAttr,    /*tp_setattro*/
+    0,                          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT,         /*tp_flags*/
+    0,                          /*tp_doc*/
+    0,                          /*tp_traverse*/
+    0,                          /*tp_clear*/
+    0,                          /*tp_richcompare*/
+    0,                          /*tp_weaklistoffset*/
+    0,                          /*tp_iter*/
+    0,                          /*tp_iternext*/
+    summary_methods,            /*tp_methods*/
+    0,                          /*tp_members*/
+    0,                          /*tp_getset*/
+    0,                          /*tp_base*/
+    0,                          /*tp_dict*/
+    0,                          /*tp_descr_get*/
+    0,                          /*tp_descr_set*/
+    0,                          /*tp_dictoffset*/
+    0,                          /*tp_init*/
+    0,                          /*tp_alloc*/
+    0,                          /*tp_new*/
+    0,                          /*tp_free*/
+    0,                          /*tp_is_gc*/
 };
 
 /*************************** View objects **************/
@@ -862,8 +843,7 @@ _msi.View.Execute
 Execute the SQL query of the view.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_View_Execute(msiobj *self, PyObject *oparams)
+static PyObject* _msi_View_Execute(msiobj* self, PyObject* oparams)
 /*[clinic end generated code: output=f0f65fd2900bcb4e input=cb163a15d453348e]*/
 {
     int status;
@@ -871,7 +851,8 @@ _msi_View_Execute(msiobj *self, PyObject *oparams)
 
     if (!Py_IsNone(oparams)) {
         if (!Py_IS_TYPE(oparams, &record_Type)) {
-            PyErr_SetString(PyExc_TypeError, "Execute argument must be a record");
+            PyErr_SetString(
+                PyExc_TypeError, "Execute argument must be a record");
             return NULL;
         }
         params = ((msiobj*)oparams)->h;
@@ -890,8 +871,7 @@ _msi.View.Fetch
 Return a result record of the query.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_View_Fetch_impl(msiobj *self)
+static PyObject* _msi_View_Fetch_impl(msiobj* self)
 /*[clinic end generated code: output=ba154a3794537d4e input=7f3e3d06c449001c]*/
 {
     int status;
@@ -916,14 +896,14 @@ _msi.View.GetColumnInfo
 Return a record describing the columns of the view.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_View_GetColumnInfo_impl(msiobj *self, int kind)
+static PyObject* _msi_View_GetColumnInfo_impl(msiobj* self, int kind)
 /*[clinic end generated code: output=e7c1697db9403660 input=afedb892bf564a3b]*/
 {
     int status;
     MSIHANDLE result;
 
-    if ((status = MsiViewGetColumnInfo(self->h, kind, &result)) != ERROR_SUCCESS)
+    if ((status = MsiViewGetColumnInfo(self->h, kind, &result))
+        != ERROR_SUCCESS)
         return msierror(status);
 
     return record_new(result);
@@ -940,8 +920,7 @@ _msi.View.Modify
 Modify the view.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_View_Modify_impl(msiobj *self, int kind, PyObject *data)
+static PyObject* _msi_View_Modify_impl(msiobj* self, int kind, PyObject* data)
 /*[clinic end generated code: output=69aaf3ce8ddac0ba input=2828de22de0d47b4]*/
 {
     int status;
@@ -951,7 +930,8 @@ _msi_View_Modify_impl(msiobj *self, int kind, PyObject *data)
         return NULL;
     }
 
-    if ((status = MsiViewModify(self->h, kind, ((msiobj*)data)->h)) != ERROR_SUCCESS)
+    if ((status = MsiViewModify(self->h, kind, ((msiobj*)data)->h))
+        != ERROR_SUCCESS)
         return msierror(status);
 
     Py_RETURN_NONE;
@@ -963,8 +943,7 @@ _msi.View.Close
 Close the view.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_View_Close_impl(msiobj *self)
+static PyObject* _msi_View_Close_impl(msiobj* self)
 /*[clinic end generated code: output=488f7b8645ca104a input=de6927d1308c401c]*/
 {
     int status;
@@ -975,6 +954,7 @@ _msi_View_Close_impl(msiobj *self)
     Py_RETURN_NONE;
 }
 
+// clang-format off
 static PyMethodDef view_methods[] = {
     _MSI_VIEW_EXECUTE_METHODDEF
     _MSI_VIEW_GETCOLUMNINFO_METHODDEF
@@ -983,49 +963,49 @@ static PyMethodDef view_methods[] = {
     _MSI_VIEW_CLOSE_METHODDEF
     { NULL, NULL }
 };
+// clang-format on
 
 static PyTypeObject msiview_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "_msi.View",            /*tp_name*/
-        sizeof(msiobj), /*tp_basicsize*/
-        0,                      /*tp_itemsize*/
-        /* methods */
-        (destructor)msiobj_dealloc, /*tp_dealloc*/
-        0,                      /*tp_vectorcall_offset*/
-        0,                      /*tp_getattr*/
-        0,                      /*tp_setattr*/
-        0,                      /*tp_as_async*/
-        0,                      /*tp_repr*/
-        0,                      /*tp_as_number*/
-        0,                      /*tp_as_sequence*/
-        0,                      /*tp_as_mapping*/
-        0,                      /*tp_hash*/
-        0,                      /*tp_call*/
-        0,                      /*tp_str*/
-        PyObject_GenericGetAttr,/*tp_getattro*/
-        PyObject_GenericSetAttr,/*tp_setattro*/
-        0,                      /*tp_as_buffer*/
-        Py_TPFLAGS_DEFAULT,     /*tp_flags*/
-        0,                      /*tp_doc*/
-        0,                      /*tp_traverse*/
-        0,                      /*tp_clear*/
-        0,                      /*tp_richcompare*/
-        0,                      /*tp_weaklistoffset*/
-        0,                      /*tp_iter*/
-        0,                      /*tp_iternext*/
-        view_methods,           /*tp_methods*/
-        0,                      /*tp_members*/
-        0,                      /*tp_getset*/
-        0,                      /*tp_base*/
-        0,                      /*tp_dict*/
-        0,                      /*tp_descr_get*/
-        0,                      /*tp_descr_set*/
-        0,                      /*tp_dictoffset*/
-        0,                      /*tp_init*/
-        0,                      /*tp_alloc*/
-        0,                      /*tp_new*/
-        0,                      /*tp_free*/
-        0,                      /*tp_is_gc*/
+    PyVarObject_HEAD_INIT(NULL, 0) "_msi.View", /*tp_name*/
+    sizeof(msiobj),                             /*tp_basicsize*/
+    0,                                          /*tp_itemsize*/
+    /* methods */
+    (destructor)msiobj_dealloc, /*tp_dealloc*/
+    0,                          /*tp_vectorcall_offset*/
+    0,                          /*tp_getattr*/
+    0,                          /*tp_setattr*/
+    0,                          /*tp_as_async*/
+    0,                          /*tp_repr*/
+    0,                          /*tp_as_number*/
+    0,                          /*tp_as_sequence*/
+    0,                          /*tp_as_mapping*/
+    0,                          /*tp_hash*/
+    0,                          /*tp_call*/
+    0,                          /*tp_str*/
+    PyObject_GenericGetAttr,    /*tp_getattro*/
+    PyObject_GenericSetAttr,    /*tp_setattro*/
+    0,                          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT,         /*tp_flags*/
+    0,                          /*tp_doc*/
+    0,                          /*tp_traverse*/
+    0,                          /*tp_clear*/
+    0,                          /*tp_richcompare*/
+    0,                          /*tp_weaklistoffset*/
+    0,                          /*tp_iter*/
+    0,                          /*tp_iternext*/
+    view_methods,               /*tp_methods*/
+    0,                          /*tp_members*/
+    0,                          /*tp_getset*/
+    0,                          /*tp_base*/
+    0,                          /*tp_dict*/
+    0,                          /*tp_descr_get*/
+    0,                          /*tp_descr_set*/
+    0,                          /*tp_dictoffset*/
+    0,                          /*tp_init*/
+    0,                          /*tp_alloc*/
+    0,                          /*tp_new*/
+    0,                          /*tp_free*/
+    0,                          /*tp_is_gc*/
 };
 
 /*************************** Database objects **************/
@@ -1039,13 +1019,12 @@ _msi.Database.OpenView
 Return a view object.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Database_OpenView_impl(msiobj *self, const wchar_t *sql)
+static PyObject* _msi_Database_OpenView_impl(msiobj* self, const wchar_t* sql)
 /*[clinic end generated code: output=e712e6a11229abfd input=50f1771f37e500df]*/
 {
     int status;
     MSIHANDLE hView;
-    msiobj *result;
+    msiobj* result;
 
     if ((status = MsiDatabaseOpenViewW(self->h, sql, &hView)) != ERROR_SUCCESS)
         return msierror(status);
@@ -1066,8 +1045,7 @@ _msi.Database.Commit
 Commit the changes pending in the current transaction.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Database_Commit_impl(msiobj *self)
+static PyObject* _msi_Database_Commit_impl(msiobj* self)
 /*[clinic end generated code: output=f33021feb8b0cdd8 input=375bb120d402266d]*/
 {
     int status;
@@ -1087,13 +1065,13 @@ _msi.Database.GetSummaryInformation
 Return a new summary information object.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_Database_GetSummaryInformation_impl(msiobj *self, int count)
+static PyObject* _msi_Database_GetSummaryInformation_impl(
+    msiobj* self, int count)
 /*[clinic end generated code: output=781e51a4ea4da847 input=18a899ead6521735]*/
 {
     int status;
     MSIHANDLE result;
-    msiobj *oresult;
+    msiobj* oresult;
 
     status = MsiGetSummaryInformation(self->h, NULL, count, &result);
     if (status != ERROR_SUCCESS)
@@ -1109,6 +1087,7 @@ _msi_Database_GetSummaryInformation_impl(msiobj *self, int count)
     return (PyObject*)oresult;
 }
 
+// clang-format off
 static PyMethodDef db_methods[] = {
     _MSI_DATABASE_OPENVIEW_METHODDEF
     _MSI_DATABASE_COMMIT_METHODDEF
@@ -1116,61 +1095,60 @@ static PyMethodDef db_methods[] = {
     _MSI_DATABASE_CLOSE_METHODDEF
     { NULL, NULL }
 };
+// clang-format on
 
 static PyTypeObject msidb_Type = {
-        PyVarObject_HEAD_INIT(NULL, 0)
-        "_msi.Database",                /*tp_name*/
-        sizeof(msiobj), /*tp_basicsize*/
-        0,                      /*tp_itemsize*/
-        /* methods */
-        (destructor)msiobj_dealloc, /*tp_dealloc*/
-        0,                      /*tp_vectorcall_offset*/
-        0,                      /*tp_getattr*/
-        0,                      /*tp_setattr*/
-        0,                      /*tp_as_async*/
-        0,                      /*tp_repr*/
-        0,                      /*tp_as_number*/
-        0,                      /*tp_as_sequence*/
-        0,                      /*tp_as_mapping*/
-        0,                      /*tp_hash*/
-        0,                      /*tp_call*/
-        0,                      /*tp_str*/
-        PyObject_GenericGetAttr,/*tp_getattro*/
-        PyObject_GenericSetAttr,/*tp_setattro*/
-        0,                      /*tp_as_buffer*/
-        Py_TPFLAGS_DEFAULT,     /*tp_flags*/
-        0,                      /*tp_doc*/
-        0,                      /*tp_traverse*/
-        0,                      /*tp_clear*/
-        0,                      /*tp_richcompare*/
-        0,                      /*tp_weaklistoffset*/
-        0,                      /*tp_iter*/
-        0,                      /*tp_iternext*/
-        db_methods,             /*tp_methods*/
-        0,                      /*tp_members*/
-        0,                      /*tp_getset*/
-        0,                      /*tp_base*/
-        0,                      /*tp_dict*/
-        0,                      /*tp_descr_get*/
-        0,                      /*tp_descr_set*/
-        0,                      /*tp_dictoffset*/
-        0,                      /*tp_init*/
-        0,                      /*tp_alloc*/
-        0,                      /*tp_new*/
-        0,                      /*tp_free*/
-        0,                      /*tp_is_gc*/
+    PyVarObject_HEAD_INIT(NULL, 0) "_msi.Database", /*tp_name*/
+    sizeof(msiobj),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    /* methods */
+    (destructor)msiobj_dealloc, /*tp_dealloc*/
+    0,                          /*tp_vectorcall_offset*/
+    0,                          /*tp_getattr*/
+    0,                          /*tp_setattr*/
+    0,                          /*tp_as_async*/
+    0,                          /*tp_repr*/
+    0,                          /*tp_as_number*/
+    0,                          /*tp_as_sequence*/
+    0,                          /*tp_as_mapping*/
+    0,                          /*tp_hash*/
+    0,                          /*tp_call*/
+    0,                          /*tp_str*/
+    PyObject_GenericGetAttr,    /*tp_getattro*/
+    PyObject_GenericSetAttr,    /*tp_setattro*/
+    0,                          /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT,         /*tp_flags*/
+    0,                          /*tp_doc*/
+    0,                          /*tp_traverse*/
+    0,                          /*tp_clear*/
+    0,                          /*tp_richcompare*/
+    0,                          /*tp_weaklistoffset*/
+    0,                          /*tp_iter*/
+    0,                          /*tp_iternext*/
+    db_methods,                 /*tp_methods*/
+    0,                          /*tp_members*/
+    0,                          /*tp_getset*/
+    0,                          /*tp_base*/
+    0,                          /*tp_dict*/
+    0,                          /*tp_descr_get*/
+    0,                          /*tp_descr_set*/
+    0,                          /*tp_dictoffset*/
+    0,                          /*tp_init*/
+    0,                          /*tp_alloc*/
+    0,                          /*tp_new*/
+    0,                          /*tp_free*/
+    0,                          /*tp_is_gc*/
 };
 
-#define Py_NOT_PERSIST(x, flag)                        \
-    (x != (SIZE_T)(flag) &&                      \
-    x != ((SIZE_T)(flag) | MSIDBOPEN_PATCHFILE))
+#define Py_NOT_PERSIST(x, flag)                                               \
+    (x != (SIZE_T)(flag) && x != ((SIZE_T)(flag) | MSIDBOPEN_PATCHFILE))
 
-#define Py_INVALID_PERSIST(x)                \
-    (Py_NOT_PERSIST(x, MSIDBOPEN_READONLY) &&  \
-    Py_NOT_PERSIST(x, MSIDBOPEN_TRANSACT) &&   \
-    Py_NOT_PERSIST(x, MSIDBOPEN_DIRECT) &&     \
-    Py_NOT_PERSIST(x, MSIDBOPEN_CREATE) &&     \
-    Py_NOT_PERSIST(x, MSIDBOPEN_CREATEDIRECT))
+#define Py_INVALID_PERSIST(x)                                                 \
+    (Py_NOT_PERSIST(x, MSIDBOPEN_READONLY)                                    \
+        && Py_NOT_PERSIST(x, MSIDBOPEN_TRANSACT)                              \
+        && Py_NOT_PERSIST(x, MSIDBOPEN_DIRECT)                                \
+        && Py_NOT_PERSIST(x, MSIDBOPEN_CREATE)                                \
+        && Py_NOT_PERSIST(x, MSIDBOPEN_CREATEDIRECT))
 
 /*[clinic input]
 _msi.OpenDatabase
@@ -1183,17 +1161,17 @@ _msi.OpenDatabase
 Return a new database object.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_OpenDatabase_impl(PyObject *module, const wchar_t *path, int persist)
+static PyObject* _msi_OpenDatabase_impl(
+    PyObject* module, const wchar_t* path, int persist)
 /*[clinic end generated code: output=d34b7202b745de05 input=1300f3b97659559b]*/
 {
     int status;
     MSIHANDLE h;
-    msiobj *result;
+    msiobj* result;
 
-    /* We need to validate that persist is a valid MSIDBOPEN_* value. Otherwise,
-       MsiOpenDatabase may treat the value as a pointer, leading to unexpected
-       behavior. */
+    /* We need to validate that persist is a valid MSIDBOPEN_* value.
+       Otherwise, MsiOpenDatabase may treat the value as a pointer, leading to
+       unexpected behavior. */
     if (Py_INVALID_PERSIST(persist))
         return msierror(ERROR_INVALID_PARAMETER);
     status = MsiOpenDatabaseW(path, (LPCWSTR)(SIZE_T)persist, &h);
@@ -1218,8 +1196,7 @@ _msi.CreateRecord
 Return a new record object.
 [clinic start generated code]*/
 
-static PyObject *
-_msi_CreateRecord_impl(PyObject *module, int count)
+static PyObject* _msi_CreateRecord_impl(PyObject* module, int count)
 /*[clinic end generated code: output=0ba0a00beea3e99e input=53f17d5b5d9b077d]*/
 {
     MSIHANDLE h;
@@ -1231,7 +1208,7 @@ _msi_CreateRecord_impl(PyObject *module, int count)
     return record_new(h);
 }
 
-
+// clang-format off
 static PyMethodDef msi_methods[] = {
         _MSI_UUIDCREATE_METHODDEF
         _MSI_FCICREATE_METHODDEF
@@ -1239,37 +1216,33 @@ static PyMethodDef msi_methods[] = {
         _MSI_CREATERECORD_METHODDEF
         {NULL,          NULL}           /* sentinel */
 };
+// clang-format on
 
 static char msi_doc[] = "Documentation";
 
+static struct PyModuleDef _msimodule = { PyModuleDef_HEAD_INIT, "_msi",
+    msi_doc, -1, msi_methods, NULL, NULL, NULL, NULL };
 
-static struct PyModuleDef _msimodule = {
-        PyModuleDef_HEAD_INIT,
-        "_msi",
-        msi_doc,
-        -1,
-        msi_methods,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-};
-
-PyMODINIT_FUNC
-PyInit__msi(void)
+PyMODINIT_FUNC PyInit__msi(void)
 {
-    PyObject *m;
+    PyObject* m;
 
     m = PyModule_Create(&_msimodule);
     if (m == NULL)
         return NULL;
 
-    PyModule_AddIntConstant(m, "MSIDBOPEN_CREATEDIRECT", (long)(SIZE_T)MSIDBOPEN_CREATEDIRECT);
-    PyModule_AddIntConstant(m, "MSIDBOPEN_CREATE", (long)(SIZE_T)MSIDBOPEN_CREATE);
-    PyModule_AddIntConstant(m, "MSIDBOPEN_DIRECT", (long)(SIZE_T)MSIDBOPEN_DIRECT);
-    PyModule_AddIntConstant(m, "MSIDBOPEN_READONLY", (long)(SIZE_T)MSIDBOPEN_READONLY);
-    PyModule_AddIntConstant(m, "MSIDBOPEN_TRANSACT", (long)(SIZE_T)MSIDBOPEN_TRANSACT);
-    PyModule_AddIntConstant(m, "MSIDBOPEN_PATCHFILE", (long)(SIZE_T)MSIDBOPEN_PATCHFILE);
+    PyModule_AddIntConstant(
+        m, "MSIDBOPEN_CREATEDIRECT", (long)(SIZE_T)MSIDBOPEN_CREATEDIRECT);
+    PyModule_AddIntConstant(
+        m, "MSIDBOPEN_CREATE", (long)(SIZE_T)MSIDBOPEN_CREATE);
+    PyModule_AddIntConstant(
+        m, "MSIDBOPEN_DIRECT", (long)(SIZE_T)MSIDBOPEN_DIRECT);
+    PyModule_AddIntConstant(
+        m, "MSIDBOPEN_READONLY", (long)(SIZE_T)MSIDBOPEN_READONLY);
+    PyModule_AddIntConstant(
+        m, "MSIDBOPEN_TRANSACT", (long)(SIZE_T)MSIDBOPEN_TRANSACT);
+    PyModule_AddIntConstant(
+        m, "MSIDBOPEN_PATCHFILE", (long)(SIZE_T)MSIDBOPEN_PATCHFILE);
 
     PyModule_AddIntMacro(m, MSICOLINFO_NAMES);
     PyModule_AddIntMacro(m, MSICOLINFO_TYPES);
@@ -1306,7 +1279,7 @@ PyInit__msi(void)
     PyModule_AddIntMacro(m, PID_APPNAME);
     PyModule_AddIntMacro(m, PID_SECURITY);
 
-    MSIError = PyErr_NewException ("_msi.MSIError", NULL, NULL);
+    MSIError = PyErr_NewException("_msi.MSIError", NULL, NULL);
     if (!MSIError)
         return NULL;
     PyModule_AddObject(m, "MSIError", MSIError);
