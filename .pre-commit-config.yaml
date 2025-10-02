@@ -26,6 +26,27 @@ repos:
         additional_dependencies:
           - validate-pyproject-schema-store[all]>=2024.11.22
 
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
+        args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v21.1.2
+    hooks:
+      - id: clang-format
+        exclude: (?x)^(src/msilib/include/pythoncapi_compat.h)$
+        types_or: [c, c++]
+
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.6.2
+    hooks:
+      - id: prettier
+        types_or: [yaml, markdown, html, css, scss, javascript, json]
+
   - repo: local
     hooks:
       - id: shellcheck
@@ -41,5 +62,5 @@ repos:
         entry: ci/pythoncapi.sh
         language: system
         files: ^(
-            src/msilib/include/pythoncapi_compat.h|
-            src/msilib/include/.*.h|src/msilib/.*.c)$
+          src/msilib/include/pythoncapi_compat.h|
+          src/msilib/include/.*.h|src/msilib/.*.c)$

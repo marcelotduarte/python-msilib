@@ -104,9 +104,8 @@ jobs:
     needs:
       - tests
     permissions:
-      actions: write
+      actions: read
       contents: write
-      pages: write
       pull-requests: write
     runs-on: ubuntu-latest
     steps:

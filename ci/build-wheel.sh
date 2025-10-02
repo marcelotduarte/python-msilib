@@ -161,9 +161,16 @@ if [ -z "$VERSION" ]; then
         FILENAME=$NAME/__init__.py
     fi
     VERSION=$(grep "__version__ = " "$FILENAME" | awk -F\" '{print $2}')
-    if [ -z "$VERSION" ]; then
-        VERSION="0.0.0"
+fi
+if [ -z "$VERSION" ]; then
+    NAME=$(echo "$NAME" | awk -F- '{print $2}')
+    NORMALIZED_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]')
+    if [ -d src ]; then
+        FILENAME=src/$NAME/__init__.py
+    else
+        FILENAME=$NAME/__init__.py
     fi
+    VERSION=$(grep "__version__ = " "$FILENAME" | awk -F\" '{print $2}')
 fi
 if [[ $VERSION == *-* ]]; then
     NORMALIZED_VERSION=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")

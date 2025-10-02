@@ -7,47 +7,48 @@ preserve
 #include <internal/pycore_modsupport.h>
 
 PyDoc_STRVAR(_msi_UuidCreate__doc__,
-"UuidCreate($module, /)\n"
-"--\n"
-"\n"
-"Return the string representation of a new unique identifier.");
+    "UuidCreate($module, /)\n"
+    "--\n"
+    "\n"
+    "Return the string representation of a new unique identifier.");
 
-#define _MSI_UUIDCREATE_METHODDEF    \
-    {"UuidCreate", (PyCFunction)_msi_UuidCreate, METH_NOARGS, _msi_UuidCreate__doc__},
+#define _MSI_UUIDCREATE_METHODDEF                                             \
+    { "UuidCreate", (PyCFunction)_msi_UuidCreate, METH_NOARGS,                \
+        _msi_UuidCreate__doc__ },
 
-static PyObject *
-_msi_UuidCreate_impl(PyObject *module);
+static PyObject* _msi_UuidCreate_impl(PyObject* module);
 
-static PyObject *
-_msi_UuidCreate(PyObject *module, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_UuidCreate(
+    PyObject* module, PyObject* Py_UNUSED(ignored))
 {
     return _msi_UuidCreate_impl(module);
 }
 
 PyDoc_STRVAR(_msi_FCICreate__doc__,
-"FCICreate($module, cabname, files, /)\n"
-"--\n"
-"\n"
-"Create a new CAB file.\n"
-"\n"
-"  cabname\n"
-"    the name of the CAB file\n"
-"  files\n"
-"    a list of tuples, each containing the name of the file on disk,\n"
-"    and the name of the file inside the CAB file");
+    "FCICreate($module, cabname, files, /)\n"
+    "--\n"
+    "\n"
+    "Create a new CAB file.\n"
+    "\n"
+    "  cabname\n"
+    "    the name of the CAB file\n"
+    "  files\n"
+    "    a list of tuples, each containing the name of the file on disk,\n"
+    "    and the name of the file inside the CAB file");
 
-#define _MSI_FCICREATE_METHODDEF    \
-    {"FCICreate", _PyCFunction_CAST(_msi_FCICreate), METH_FASTCALL, _msi_FCICreate__doc__},
+#define _MSI_FCICREATE_METHODDEF                                              \
+    { "FCICreate", _PyCFunction_CAST(_msi_FCICreate), METH_FASTCALL,          \
+        _msi_FCICreate__doc__ },
 
-static PyObject *
-_msi_FCICreate_impl(PyObject *module, const char *cabname, PyObject *files);
+static PyObject* _msi_FCICreate_impl(
+    PyObject* module, const char* cabname, PyObject* files);
 
-static PyObject *
-_msi_FCICreate(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
+static PyObject* _msi_FCICreate(
+    PyObject* module, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *return_value = NULL;
-    const char *cabname;
-    PyObject *files;
+    PyObject* return_value = NULL;
+    const char* cabname;
+    PyObject* files;
 
     if (!_PyArg_CheckPositional("FCICreate", nargs, 2, 2)) {
         goto exit;
@@ -73,57 +74,56 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_Database_Close__doc__,
-"Close($self, /)\n"
-"--\n"
-"\n"
-"Close the database object.");
+    "Close($self, /)\n"
+    "--\n"
+    "\n"
+    "Close the database object.");
 
-#define _MSI_DATABASE_CLOSE_METHODDEF    \
-    {"Close", (PyCFunction)_msi_Database_Close, METH_NOARGS, _msi_Database_Close__doc__},
+#define _MSI_DATABASE_CLOSE_METHODDEF                                         \
+    { "Close", (PyCFunction)_msi_Database_Close, METH_NOARGS,                 \
+        _msi_Database_Close__doc__ },
 
-static PyObject *
-_msi_Database_Close_impl(msiobj *self);
+static PyObject* _msi_Database_Close_impl(msiobj* self);
 
-static PyObject *
-_msi_Database_Close(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_Database_Close(
+    msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_Database_Close_impl(self);
 }
 
 PyDoc_STRVAR(_msi_Record_GetFieldCount__doc__,
-"GetFieldCount($self, /)\n"
-"--\n"
-"\n"
-"Return the number of fields of the record.");
+    "GetFieldCount($self, /)\n"
+    "--\n"
+    "\n"
+    "Return the number of fields of the record.");
 
-#define _MSI_RECORD_GETFIELDCOUNT_METHODDEF    \
-    {"GetFieldCount", (PyCFunction)_msi_Record_GetFieldCount, METH_NOARGS, _msi_Record_GetFieldCount__doc__},
+#define _MSI_RECORD_GETFIELDCOUNT_METHODDEF                                   \
+    { "GetFieldCount", (PyCFunction)_msi_Record_GetFieldCount, METH_NOARGS,   \
+        _msi_Record_GetFieldCount__doc__ },
 
-static PyObject *
-_msi_Record_GetFieldCount_impl(msiobj *self);
+static PyObject* _msi_Record_GetFieldCount_impl(msiobj* self);
 
-static PyObject *
-_msi_Record_GetFieldCount(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_Record_GetFieldCount(
+    msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_Record_GetFieldCount_impl(self);
 }
 
 PyDoc_STRVAR(_msi_Record_GetInteger__doc__,
-"GetInteger($self, field, /)\n"
-"--\n"
-"\n"
-"Return the value of field as an integer where possible.");
+    "GetInteger($self, field, /)\n"
+    "--\n"
+    "\n"
+    "Return the value of field as an integer where possible.");
 
-#define _MSI_RECORD_GETINTEGER_METHODDEF    \
-    {"GetInteger", (PyCFunction)_msi_Record_GetInteger, METH_O, _msi_Record_GetInteger__doc__},
+#define _MSI_RECORD_GETINTEGER_METHODDEF                                      \
+    { "GetInteger", (PyCFunction)_msi_Record_GetInteger, METH_O,              \
+        _msi_Record_GetInteger__doc__ },
 
-static PyObject *
-_msi_Record_GetInteger_impl(msiobj *self, unsigned int field);
+static PyObject* _msi_Record_GetInteger_impl(msiobj* self, unsigned int field);
 
-static PyObject *
-_msi_Record_GetInteger(msiobj *self, PyObject *arg)
+static PyObject* _msi_Record_GetInteger(msiobj* self, PyObject* arg)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     unsigned int field;
 
     field = (unsigned int)PyLong_AsUnsignedLongMask(arg);
@@ -137,21 +137,20 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_Record_GetString__doc__,
-"GetString($self, field, /)\n"
-"--\n"
-"\n"
-"Return the value of field as a string where possible.");
+    "GetString($self, field, /)\n"
+    "--\n"
+    "\n"
+    "Return the value of field as a string where possible.");
 
-#define _MSI_RECORD_GETSTRING_METHODDEF    \
-    {"GetString", (PyCFunction)_msi_Record_GetString, METH_O, _msi_Record_GetString__doc__},
+#define _MSI_RECORD_GETSTRING_METHODDEF                                       \
+    { "GetString", (PyCFunction)_msi_Record_GetString, METH_O,                \
+        _msi_Record_GetString__doc__ },
 
-static PyObject *
-_msi_Record_GetString_impl(msiobj *self, unsigned int field);
+static PyObject* _msi_Record_GetString_impl(msiobj* self, unsigned int field);
 
-static PyObject *
-_msi_Record_GetString(msiobj *self, PyObject *arg)
+static PyObject* _msi_Record_GetString(msiobj* self, PyObject* arg)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     unsigned int field;
 
     field = (unsigned int)PyLong_AsUnsignedLongMask(arg);
@@ -165,41 +164,42 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_Record_ClearData__doc__,
-"ClearData($self, /)\n"
-"--\n"
-"\n"
-"Set all fields of the record to 0.");
+    "ClearData($self, /)\n"
+    "--\n"
+    "\n"
+    "Set all fields of the record to 0.");
 
-#define _MSI_RECORD_CLEARDATA_METHODDEF    \
-    {"ClearData", (PyCFunction)_msi_Record_ClearData, METH_NOARGS, _msi_Record_ClearData__doc__},
+#define _MSI_RECORD_CLEARDATA_METHODDEF                                       \
+    { "ClearData", (PyCFunction)_msi_Record_ClearData, METH_NOARGS,           \
+        _msi_Record_ClearData__doc__ },
 
-static PyObject *
-_msi_Record_ClearData_impl(msiobj *self);
+static PyObject* _msi_Record_ClearData_impl(msiobj* self);
 
-static PyObject *
-_msi_Record_ClearData(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_Record_ClearData(
+    msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_Record_ClearData_impl(self);
 }
 
 PyDoc_STRVAR(_msi_Record_SetString__doc__,
-"SetString($self, field, value, /)\n"
-"--\n"
-"\n"
-"Set field to a string value.");
+    "SetString($self, field, value, /)\n"
+    "--\n"
+    "\n"
+    "Set field to a string value.");
 
-#define _MSI_RECORD_SETSTRING_METHODDEF    \
-    {"SetString", _PyCFunction_CAST(_msi_Record_SetString), METH_FASTCALL, _msi_Record_SetString__doc__},
+#define _MSI_RECORD_SETSTRING_METHODDEF                                       \
+    { "SetString", _PyCFunction_CAST(_msi_Record_SetString), METH_FASTCALL,   \
+        _msi_Record_SetString__doc__ },
 
-static PyObject *
-_msi_Record_SetString_impl(msiobj *self, int field, const wchar_t *value);
+static PyObject* _msi_Record_SetString_impl(
+    msiobj* self, int field, const wchar_t* value);
 
-static PyObject *
-_msi_Record_SetString(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
+static PyObject* _msi_Record_SetString(
+    msiobj* self, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int field;
-    const wchar_t *value = NULL;
+    const wchar_t* value = NULL;
 
     if (!_PyArg_CheckPositional("SetString", nargs, 2, 2)) {
         goto exit;
@@ -220,29 +220,30 @@ _msi_Record_SetString(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
 
 exit:
     /* Cleanup for value */
-    PyMem_Free((void *)value);
+    PyMem_Free((void*)value);
 
     return return_value;
 }
 
 PyDoc_STRVAR(_msi_Record_SetStream__doc__,
-"SetStream($self, field, value, /)\n"
-"--\n"
-"\n"
-"Set field to the contents of the file named value.");
+    "SetStream($self, field, value, /)\n"
+    "--\n"
+    "\n"
+    "Set field to the contents of the file named value.");
 
-#define _MSI_RECORD_SETSTREAM_METHODDEF    \
-    {"SetStream", _PyCFunction_CAST(_msi_Record_SetStream), METH_FASTCALL, _msi_Record_SetStream__doc__},
+#define _MSI_RECORD_SETSTREAM_METHODDEF                                       \
+    { "SetStream", _PyCFunction_CAST(_msi_Record_SetStream), METH_FASTCALL,   \
+        _msi_Record_SetStream__doc__ },
 
-static PyObject *
-_msi_Record_SetStream_impl(msiobj *self, int field, const wchar_t *value);
+static PyObject* _msi_Record_SetStream_impl(
+    msiobj* self, int field, const wchar_t* value);
 
-static PyObject *
-_msi_Record_SetStream(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
+static PyObject* _msi_Record_SetStream(
+    msiobj* self, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int field;
-    const wchar_t *value = NULL;
+    const wchar_t* value = NULL;
 
     if (!_PyArg_CheckPositional("SetStream", nargs, 2, 2)) {
         goto exit;
@@ -263,27 +264,28 @@ _msi_Record_SetStream(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
 
 exit:
     /* Cleanup for value */
-    PyMem_Free((void *)value);
+    PyMem_Free((void*)value);
 
     return return_value;
 }
 
 PyDoc_STRVAR(_msi_Record_SetInteger__doc__,
-"SetInteger($self, field, value, /)\n"
-"--\n"
-"\n"
-"Set field to an integer value.");
+    "SetInteger($self, field, value, /)\n"
+    "--\n"
+    "\n"
+    "Set field to an integer value.");
 
-#define _MSI_RECORD_SETINTEGER_METHODDEF    \
-    {"SetInteger", _PyCFunction_CAST(_msi_Record_SetInteger), METH_FASTCALL, _msi_Record_SetInteger__doc__},
+#define _MSI_RECORD_SETINTEGER_METHODDEF                                      \
+    { "SetInteger", _PyCFunction_CAST(_msi_Record_SetInteger), METH_FASTCALL, \
+        _msi_Record_SetInteger__doc__ },
 
-static PyObject *
-_msi_Record_SetInteger_impl(msiobj *self, int field, int value);
+static PyObject* _msi_Record_SetInteger_impl(
+    msiobj* self, int field, int value);
 
-static PyObject *
-_msi_Record_SetInteger(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
+static PyObject* _msi_Record_SetInteger(
+    msiobj* self, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int field;
     int value;
 
@@ -305,24 +307,25 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_SummaryInformation_GetProperty__doc__,
-"GetProperty($self, field, /)\n"
-"--\n"
-"\n"
-"Return a property of the summary.\n"
-"\n"
-"  field\n"
-"    the name of the property, one of the PID_* constants");
+    "GetProperty($self, field, /)\n"
+    "--\n"
+    "\n"
+    "Return a property of the summary.\n"
+    "\n"
+    "  field\n"
+    "    the name of the property, one of the PID_* constants");
 
-#define _MSI_SUMMARYINFORMATION_GETPROPERTY_METHODDEF    \
-    {"GetProperty", (PyCFunction)_msi_SummaryInformation_GetProperty, METH_O, _msi_SummaryInformation_GetProperty__doc__},
+#define _MSI_SUMMARYINFORMATION_GETPROPERTY_METHODDEF                         \
+    { "GetProperty", (PyCFunction)_msi_SummaryInformation_GetProperty,        \
+        METH_O, _msi_SummaryInformation_GetProperty__doc__ },
 
-static PyObject *
-_msi_SummaryInformation_GetProperty_impl(msiobj *self, int field);
+static PyObject* _msi_SummaryInformation_GetProperty_impl(
+    msiobj* self, int field);
 
-static PyObject *
-_msi_SummaryInformation_GetProperty(msiobj *self, PyObject *arg)
+static PyObject* _msi_SummaryInformation_GetProperty(
+    msiobj* self, PyObject* arg)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int field;
 
     field = PyLong_AsInt(arg);
@@ -336,47 +339,48 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_SummaryInformation_GetPropertyCount__doc__,
-"GetPropertyCount($self, /)\n"
-"--\n"
-"\n"
-"Return the number of summary properties.");
+    "GetPropertyCount($self, /)\n"
+    "--\n"
+    "\n"
+    "Return the number of summary properties.");
 
-#define _MSI_SUMMARYINFORMATION_GETPROPERTYCOUNT_METHODDEF    \
-    {"GetPropertyCount", (PyCFunction)_msi_SummaryInformation_GetPropertyCount, METH_NOARGS, _msi_SummaryInformation_GetPropertyCount__doc__},
+#define _MSI_SUMMARYINFORMATION_GETPROPERTYCOUNT_METHODDEF                    \
+    { "GetPropertyCount",                                                     \
+        (PyCFunction)_msi_SummaryInformation_GetPropertyCount, METH_NOARGS,   \
+        _msi_SummaryInformation_GetPropertyCount__doc__ },
 
-static PyObject *
-_msi_SummaryInformation_GetPropertyCount_impl(msiobj *self);
+static PyObject* _msi_SummaryInformation_GetPropertyCount_impl(msiobj* self);
 
-static PyObject *
-_msi_SummaryInformation_GetPropertyCount(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_SummaryInformation_GetPropertyCount(
+    msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_SummaryInformation_GetPropertyCount_impl(self);
 }
 
 PyDoc_STRVAR(_msi_SummaryInformation_SetProperty__doc__,
-"SetProperty($self, field, value, /)\n"
-"--\n"
-"\n"
-"Set a property.\n"
-"\n"
-"  field\n"
-"    the name of the property, one of the PID_* constants\n"
-"  value\n"
-"    the new value of the property (integer or string)");
+    "SetProperty($self, field, value, /)\n"
+    "--\n"
+    "\n"
+    "Set a property.\n"
+    "\n"
+    "  field\n"
+    "    the name of the property, one of the PID_* constants\n"
+    "  value\n"
+    "    the new value of the property (integer or string)");
 
-#define _MSI_SUMMARYINFORMATION_SETPROPERTY_METHODDEF    \
-    {"SetProperty", _PyCFunction_CAST(_msi_SummaryInformation_SetProperty), METH_FASTCALL, _msi_SummaryInformation_SetProperty__doc__},
+#define _MSI_SUMMARYINFORMATION_SETPROPERTY_METHODDEF                         \
+    { "SetProperty", _PyCFunction_CAST(_msi_SummaryInformation_SetProperty),  \
+        METH_FASTCALL, _msi_SummaryInformation_SetProperty__doc__ },
 
-static PyObject *
-_msi_SummaryInformation_SetProperty_impl(msiobj *self, int field,
-                                         PyObject *data);
+static PyObject* _msi_SummaryInformation_SetProperty_impl(
+    msiobj* self, int field, PyObject* data);
 
-static PyObject *
-_msi_SummaryInformation_SetProperty(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
+static PyObject* _msi_SummaryInformation_SetProperty(
+    msiobj* self, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int field;
-    PyObject *data;
+    PyObject* data;
 
     if (!_PyArg_CheckPositional("SetProperty", nargs, 2, 2)) {
         goto exit;
@@ -393,73 +397,72 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_SummaryInformation_Persist__doc__,
-"Persist($self, /)\n"
-"--\n"
-"\n"
-"Write the modified properties to the summary information stream.");
+    "Persist($self, /)\n"
+    "--\n"
+    "\n"
+    "Write the modified properties to the summary information stream.");
 
-#define _MSI_SUMMARYINFORMATION_PERSIST_METHODDEF    \
-    {"Persist", (PyCFunction)_msi_SummaryInformation_Persist, METH_NOARGS, _msi_SummaryInformation_Persist__doc__},
+#define _MSI_SUMMARYINFORMATION_PERSIST_METHODDEF                             \
+    { "Persist", (PyCFunction)_msi_SummaryInformation_Persist, METH_NOARGS,   \
+        _msi_SummaryInformation_Persist__doc__ },
 
-static PyObject *
-_msi_SummaryInformation_Persist_impl(msiobj *self);
+static PyObject* _msi_SummaryInformation_Persist_impl(msiobj* self);
 
-static PyObject *
-_msi_SummaryInformation_Persist(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_SummaryInformation_Persist(
+    msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_SummaryInformation_Persist_impl(self);
 }
 
 PyDoc_STRVAR(_msi_View_Execute__doc__,
-"Execute($self, params, /)\n"
-"--\n"
-"\n"
-"Execute the SQL query of the view.\n"
-"\n"
-"  params\n"
-"    a record describing actual values of the parameter tokens\n"
-"    in the query or None");
+    "Execute($self, params, /)\n"
+    "--\n"
+    "\n"
+    "Execute the SQL query of the view.\n"
+    "\n"
+    "  params\n"
+    "    a record describing actual values of the parameter tokens\n"
+    "    in the query or None");
 
-#define _MSI_VIEW_EXECUTE_METHODDEF    \
-    {"Execute", (PyCFunction)_msi_View_Execute, METH_O, _msi_View_Execute__doc__},
+#define _MSI_VIEW_EXECUTE_METHODDEF                                           \
+    { "Execute", (PyCFunction)_msi_View_Execute, METH_O,                      \
+        _msi_View_Execute__doc__ },
 
 PyDoc_STRVAR(_msi_View_Fetch__doc__,
-"Fetch($self, /)\n"
-"--\n"
-"\n"
-"Return a result record of the query.");
+    "Fetch($self, /)\n"
+    "--\n"
+    "\n"
+    "Return a result record of the query.");
 
-#define _MSI_VIEW_FETCH_METHODDEF    \
-    {"Fetch", (PyCFunction)_msi_View_Fetch, METH_NOARGS, _msi_View_Fetch__doc__},
+#define _MSI_VIEW_FETCH_METHODDEF                                             \
+    { "Fetch", (PyCFunction)_msi_View_Fetch, METH_NOARGS,                     \
+        _msi_View_Fetch__doc__ },
 
-static PyObject *
-_msi_View_Fetch_impl(msiobj *self);
+static PyObject* _msi_View_Fetch_impl(msiobj* self);
 
-static PyObject *
-_msi_View_Fetch(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_View_Fetch(msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_View_Fetch_impl(self);
 }
 
 PyDoc_STRVAR(_msi_View_GetColumnInfo__doc__,
-"GetColumnInfo($self, kind, /)\n"
-"--\n"
-"\n"
-"Return a record describing the columns of the view.\n"
-"\n"
-"  kind\n"
-"    MSICOLINFO_NAMES or MSICOLINFO_TYPES");
+    "GetColumnInfo($self, kind, /)\n"
+    "--\n"
+    "\n"
+    "Return a record describing the columns of the view.\n"
+    "\n"
+    "  kind\n"
+    "    MSICOLINFO_NAMES or MSICOLINFO_TYPES");
 
-#define _MSI_VIEW_GETCOLUMNINFO_METHODDEF    \
-    {"GetColumnInfo", (PyCFunction)_msi_View_GetColumnInfo, METH_O, _msi_View_GetColumnInfo__doc__},
+#define _MSI_VIEW_GETCOLUMNINFO_METHODDEF                                     \
+    { "GetColumnInfo", (PyCFunction)_msi_View_GetColumnInfo, METH_O,          \
+        _msi_View_GetColumnInfo__doc__ },
 
-static PyObject *
-_msi_View_GetColumnInfo_impl(msiobj *self, int kind);
+static PyObject* _msi_View_GetColumnInfo_impl(msiobj* self, int kind);
 
-static PyObject *
-_msi_View_GetColumnInfo(msiobj *self, PyObject *arg)
+static PyObject* _msi_View_GetColumnInfo(msiobj* self, PyObject* arg)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int kind;
 
     kind = PyLong_AsInt(arg);
@@ -473,28 +476,28 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_View_Modify__doc__,
-"Modify($self, kind, data, /)\n"
-"--\n"
-"\n"
-"Modify the view.\n"
-"\n"
-"  kind\n"
-"    one of the MSIMODIFY_* constants\n"
-"  data\n"
-"    a record describing the new data");
+    "Modify($self, kind, data, /)\n"
+    "--\n"
+    "\n"
+    "Modify the view.\n"
+    "\n"
+    "  kind\n"
+    "    one of the MSIMODIFY_* constants\n"
+    "  data\n"
+    "    a record describing the new data");
 
-#define _MSI_VIEW_MODIFY_METHODDEF    \
-    {"Modify", _PyCFunction_CAST(_msi_View_Modify), METH_FASTCALL, _msi_View_Modify__doc__},
+#define _MSI_VIEW_MODIFY_METHODDEF                                            \
+    { "Modify", _PyCFunction_CAST(_msi_View_Modify), METH_FASTCALL,           \
+        _msi_View_Modify__doc__ },
 
-static PyObject *
-_msi_View_Modify_impl(msiobj *self, int kind, PyObject *data);
+static PyObject* _msi_View_Modify_impl(msiobj* self, int kind, PyObject* data);
 
-static PyObject *
-_msi_View_Modify(msiobj *self, PyObject *const *args, Py_ssize_t nargs)
+static PyObject* _msi_View_Modify(
+    msiobj* self, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int kind;
-    PyObject *data;
+    PyObject* data;
 
     if (!_PyArg_CheckPositional("Modify", nargs, 2, 2)) {
         goto exit;
@@ -511,43 +514,41 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_View_Close__doc__,
-"Close($self, /)\n"
-"--\n"
-"\n"
-"Close the view.");
+    "Close($self, /)\n"
+    "--\n"
+    "\n"
+    "Close the view.");
 
-#define _MSI_VIEW_CLOSE_METHODDEF    \
-    {"Close", (PyCFunction)_msi_View_Close, METH_NOARGS, _msi_View_Close__doc__},
+#define _MSI_VIEW_CLOSE_METHODDEF                                             \
+    { "Close", (PyCFunction)_msi_View_Close, METH_NOARGS,                     \
+        _msi_View_Close__doc__ },
 
-static PyObject *
-_msi_View_Close_impl(msiobj *self);
+static PyObject* _msi_View_Close_impl(msiobj* self);
 
-static PyObject *
-_msi_View_Close(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_View_Close(msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_View_Close_impl(self);
 }
 
 PyDoc_STRVAR(_msi_Database_OpenView__doc__,
-"OpenView($self, sql, /)\n"
-"--\n"
-"\n"
-"Return a view object.\n"
-"\n"
-"  sql\n"
-"    the SQL statement to execute");
+    "OpenView($self, sql, /)\n"
+    "--\n"
+    "\n"
+    "Return a view object.\n"
+    "\n"
+    "  sql\n"
+    "    the SQL statement to execute");
 
-#define _MSI_DATABASE_OPENVIEW_METHODDEF    \
-    {"OpenView", (PyCFunction)_msi_Database_OpenView, METH_O, _msi_Database_OpenView__doc__},
+#define _MSI_DATABASE_OPENVIEW_METHODDEF                                      \
+    { "OpenView", (PyCFunction)_msi_Database_OpenView, METH_O,                \
+        _msi_Database_OpenView__doc__ },
 
-static PyObject *
-_msi_Database_OpenView_impl(msiobj *self, const wchar_t *sql);
+static PyObject* _msi_Database_OpenView_impl(msiobj* self, const wchar_t* sql);
 
-static PyObject *
-_msi_Database_OpenView(msiobj *self, PyObject *arg)
+static PyObject* _msi_Database_OpenView(msiobj* self, PyObject* arg)
 {
-    PyObject *return_value = NULL;
-    const wchar_t *sql = NULL;
+    PyObject* return_value = NULL;
+    const wchar_t* sql = NULL;
 
     if (!PyUnicode_Check(arg)) {
         _PyArg_BadArgument("OpenView", "argument", "str", arg);
@@ -561,48 +562,50 @@ _msi_Database_OpenView(msiobj *self, PyObject *arg)
 
 exit:
     /* Cleanup for sql */
-    PyMem_Free((void *)sql);
+    PyMem_Free((void*)sql);
 
     return return_value;
 }
 
 PyDoc_STRVAR(_msi_Database_Commit__doc__,
-"Commit($self, /)\n"
-"--\n"
-"\n"
-"Commit the changes pending in the current transaction.");
+    "Commit($self, /)\n"
+    "--\n"
+    "\n"
+    "Commit the changes pending in the current transaction.");
 
-#define _MSI_DATABASE_COMMIT_METHODDEF    \
-    {"Commit", (PyCFunction)_msi_Database_Commit, METH_NOARGS, _msi_Database_Commit__doc__},
+#define _MSI_DATABASE_COMMIT_METHODDEF                                        \
+    { "Commit", (PyCFunction)_msi_Database_Commit, METH_NOARGS,               \
+        _msi_Database_Commit__doc__ },
 
-static PyObject *
-_msi_Database_Commit_impl(msiobj *self);
+static PyObject* _msi_Database_Commit_impl(msiobj* self);
 
-static PyObject *
-_msi_Database_Commit(msiobj *self, PyObject *Py_UNUSED(ignored))
+static PyObject* _msi_Database_Commit(
+    msiobj* self, PyObject* Py_UNUSED(ignored))
 {
     return _msi_Database_Commit_impl(self);
 }
 
 PyDoc_STRVAR(_msi_Database_GetSummaryInformation__doc__,
-"GetSummaryInformation($self, count, /)\n"
-"--\n"
-"\n"
-"Return a new summary information object.\n"
-"\n"
-"  count\n"
-"    the maximum number of updated values");
+    "GetSummaryInformation($self, count, /)\n"
+    "--\n"
+    "\n"
+    "Return a new summary information object.\n"
+    "\n"
+    "  count\n"
+    "    the maximum number of updated values");
 
-#define _MSI_DATABASE_GETSUMMARYINFORMATION_METHODDEF    \
-    {"GetSummaryInformation", (PyCFunction)_msi_Database_GetSummaryInformation, METH_O, _msi_Database_GetSummaryInformation__doc__},
+#define _MSI_DATABASE_GETSUMMARYINFORMATION_METHODDEF                         \
+    { "GetSummaryInformation",                                                \
+        (PyCFunction)_msi_Database_GetSummaryInformation, METH_O,             \
+        _msi_Database_GetSummaryInformation__doc__ },
 
-static PyObject *
-_msi_Database_GetSummaryInformation_impl(msiobj *self, int count);
+static PyObject* _msi_Database_GetSummaryInformation_impl(
+    msiobj* self, int count);
 
-static PyObject *
-_msi_Database_GetSummaryInformation(msiobj *self, PyObject *arg)
+static PyObject* _msi_Database_GetSummaryInformation(
+    msiobj* self, PyObject* arg)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int count;
 
     count = PyLong_AsInt(arg);
@@ -616,27 +619,28 @@ exit:
 }
 
 PyDoc_STRVAR(_msi_OpenDatabase__doc__,
-"OpenDatabase($module, path, persist, /)\n"
-"--\n"
-"\n"
-"Return a new database object.\n"
-"\n"
-"  path\n"
-"    the file name of the MSI file\n"
-"  persist\n"
-"    the persistence mode");
+    "OpenDatabase($module, path, persist, /)\n"
+    "--\n"
+    "\n"
+    "Return a new database object.\n"
+    "\n"
+    "  path\n"
+    "    the file name of the MSI file\n"
+    "  persist\n"
+    "    the persistence mode");
 
-#define _MSI_OPENDATABASE_METHODDEF    \
-    {"OpenDatabase", _PyCFunction_CAST(_msi_OpenDatabase), METH_FASTCALL, _msi_OpenDatabase__doc__},
+#define _MSI_OPENDATABASE_METHODDEF                                           \
+    { "OpenDatabase", _PyCFunction_CAST(_msi_OpenDatabase), METH_FASTCALL,    \
+        _msi_OpenDatabase__doc__ },
 
-static PyObject *
-_msi_OpenDatabase_impl(PyObject *module, const wchar_t *path, int persist);
+static PyObject* _msi_OpenDatabase_impl(
+    PyObject* module, const wchar_t* path, int persist);
 
-static PyObject *
-_msi_OpenDatabase(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
+static PyObject* _msi_OpenDatabase(
+    PyObject* module, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *return_value = NULL;
-    const wchar_t *path = NULL;
+    PyObject* return_value = NULL;
+    const wchar_t* path = NULL;
     int persist;
 
     if (!_PyArg_CheckPositional("OpenDatabase", nargs, 2, 2)) {
@@ -658,30 +662,29 @@ _msi_OpenDatabase(PyObject *module, PyObject *const *args, Py_ssize_t nargs)
 
 exit:
     /* Cleanup for path */
-    PyMem_Free((void *)path);
+    PyMem_Free((void*)path);
 
     return return_value;
 }
 
 PyDoc_STRVAR(_msi_CreateRecord__doc__,
-"CreateRecord($module, count, /)\n"
-"--\n"
-"\n"
-"Return a new record object.\n"
-"\n"
-"  count\n"
-"    the number of fields of the record");
+    "CreateRecord($module, count, /)\n"
+    "--\n"
+    "\n"
+    "Return a new record object.\n"
+    "\n"
+    "  count\n"
+    "    the number of fields of the record");
 
-#define _MSI_CREATERECORD_METHODDEF    \
-    {"CreateRecord", (PyCFunction)_msi_CreateRecord, METH_O, _msi_CreateRecord__doc__},
+#define _MSI_CREATERECORD_METHODDEF                                           \
+    { "CreateRecord", (PyCFunction)_msi_CreateRecord, METH_O,                 \
+        _msi_CreateRecord__doc__ },
 
-static PyObject *
-_msi_CreateRecord_impl(PyObject *module, int count);
+static PyObject* _msi_CreateRecord_impl(PyObject* module, int count);
 
-static PyObject *
-_msi_CreateRecord(PyObject *module, PyObject *arg)
+static PyObject* _msi_CreateRecord(PyObject* module, PyObject* arg)
 {
-    PyObject *return_value = NULL;
+    PyObject* return_value = NULL;
     int count;
 
     count = PyLong_AsInt(arg);
