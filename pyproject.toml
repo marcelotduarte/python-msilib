@@ -128,12 +128,13 @@ precision = 2
 
 [tool.coverage.paths]
 source = [
-    "msilib/",
+    "src/msilib/",
     "*/msilib/",
 ]
 
 [tool.coverage.run]
 command_line = "-m pytest"
+dynamic_context = "test_function"
 source = ["msilib"]
 parallel = true
 relative_files = true
