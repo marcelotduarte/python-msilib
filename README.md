@@ -18,25 +18,36 @@ cx_Freeze's bdist_msi command to continue working in Python 3.13 and 3.14.
 Choose the Python package manager according to your system. See how the
 installation works with the most common ones, which are pip and conda.
 
-To install the latest version of `python-msilib` using `pip` into a
-virtual environment:
+To install the latest version of `python-msilib` into a virtual environment:
+
+```
+uv pip install --upgrade python-msilib
+```
+
+If using pip:
 
 ```
 pip install --upgrade python-msilib
 ```
 
+From the conda-forge channel:
+
+```
+conda install conda-forge::python-msilib
+```
+
 To install the latest development build:
+
+```
+uv pip uninstall python-msilib
+uv pip install --extra-index-url https://test.pypi.org/simple/ python-msilib --prerelease=allow --index-strategy=unsafe-best-match
+```
+
+If using pip:
 
 ```
 pip uninstall python-msilib
 pip install --extra-index-url https://test.pypi.org/simple/ python-msilib --pre --no-cache
-```
-
-Installing python-msilib from the conda-forge channel can be achieved with the
-command:
-
-```
-conda install conda-forge::python-msilib
 ```
 
 ## Documentation
