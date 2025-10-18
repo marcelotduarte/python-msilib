@@ -298,8 +298,8 @@ static PyObject* _msi_FCICreate_impl(
         return NULL;
     }
 
-    for (i = 0; i < PyList_GET_SIZE(files); i++) {
-        PyObject* item = PyList_GET_ITEM(files, i);
+    for (i = 0; i < PyList_Size(files); i++) {
+        PyObject* item = PyList_GetItemRef(files, i);
         char *filename, *cabname;
 
         if (!PyArg_ParseTuple(item, "ss", &filename, &cabname)) {
