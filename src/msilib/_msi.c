@@ -298,8 +298,8 @@ static PyObject* _msi_FCICreate_impl(
         return NULL;
     }
 
-    for (i = 0; i < PyList_GET_SIZE(files); i++) {
-        PyObject* item = PyList_GET_ITEM(files, i);
+    for (i = 0; i < PyList_Size(files); i++) {
+        PyObject* item = PyList_GetItemRef(files, i);
         char *filename, *cabname;
 
         if (!PyArg_ParseTuple(item, "ss", &filename, &cabname)) {
@@ -1282,5 +1282,8 @@ PyMODINIT_FUNC PyInit__msi(void)
     if (!MSIError)
         return NULL;
     PyModule_AddObject(m, "MSIError", MSIError);
+#ifdef Py_GIL_DISABLED
+    PyUnstable_Module_SetGIL(m, Py_MOD_GIL_NOT_USED);
+#endif
     return m;
 }
