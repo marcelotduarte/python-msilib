@@ -1282,5 +1282,8 @@ PyMODINIT_FUNC PyInit__msi(void)
     if (!MSIError)
         return NULL;
     PyModule_AddObject(m, "MSIError", MSIError);
+#ifdef Py_GIL_DISABLED
+    PyUnstable_Module_SetGIL(m, Py_MOD_GIL_NOT_USED);
+#endif
     return m;
 }
