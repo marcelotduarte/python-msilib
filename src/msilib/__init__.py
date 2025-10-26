@@ -23,11 +23,11 @@ from msilib._msi import (
     PID_TITLE,
     PID_WORDCOUNT,
     CreateRecord,
+    Database,
     FCICreate,
     MSIError,
     OpenDatabase,
     UuidCreate,
-    _Database,
 )
 
 __version__ = "0.3.0"
@@ -169,7 +169,7 @@ def add_stream(db, name, path) -> None:
 
 def init_database(
     name, schema, ProductName, ProductCode, ProductVersion, Manufacturer
-) -> _Database:
+) -> Database:
     with contextlib.suppress(OSError):
         os.unlink(name)
     ProductCode = ProductCode.upper()
