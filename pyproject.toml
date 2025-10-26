@@ -222,6 +222,7 @@ ignore = [
     "S101",     # Use of `assert` detected
     "S608",
     "A002",
+    "ANN201",
     "ERA001",
     "PLW0603", # global
 ]
@@ -233,6 +234,7 @@ ignore = [
 ]
 "tests/*" = [
     "S101",     # Use of `assert` detected
+    "ANN201",
 ]
 
 [tool.ruff.lint.flake8-builtins]

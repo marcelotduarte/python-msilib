@@ -59,6 +59,7 @@ from msilib._msi import (
 __version__ = "0.3.0"
 
 __all__ = [
+    "CAB",
     "MSICOLINFO_NAMES",
     "MSICOLINFO_TYPES",
     "MSIDBOPEN_CREATE",
@@ -97,11 +98,36 @@ __all__ = [
     "PID_TEMPLATE",
     "PID_TITLE",
     "PID_WORDCOUNT",
+    "Binary",
+    "Control",
     "CreateRecord",
+    "Dialog",
+    "Directory",
     "FCICreate",
+    "Feature",
     "MSIError",
     "OpenDatabase",
+    "RadioButtonGroup",
+    "Table",
     "UuidCreate",
+    "add_data",
+    "add_stream",
+    "add_tables",
+    "change_sequence",
+    "datasizemask",
+    "gen_uuid",
+    "init_database",
+    "knownbits",
+    "make_id",
+    "type_binary",
+    "type_key",
+    "type_localizable",
+    "type_long",
+    "type_nullable",
+    "type_short",
+    "type_string",
+    "type_valid",
+    "typemask",
 ]
 
 AMD64 = "AMD64" in sys.version
@@ -239,7 +265,7 @@ def add_stream(db, name, path) -> None:
     v.Close()
 
 
-def init_database(  # noqa: ANN202
+def init_database(
     name, schema, ProductName, ProductCode, ProductVersion, Manufacturer
 ):
     with contextlib.suppress(OSError):

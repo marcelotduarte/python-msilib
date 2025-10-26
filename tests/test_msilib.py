@@ -7,7 +7,7 @@ schema = pytest.importorskip("msilib.schema", reason="Windows tests")
 
 
 @pytest.fixture
-def db(tmp_path) -> msilib.Database:
+def db(tmp_path):
     path = tmp_path / "test.msi"
     db = msilib.init_database(
         path.as_posix(), schema, "Python Tests", "product_code", "1.0", "PSF"
