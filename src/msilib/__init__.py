@@ -12,12 +12,39 @@ from tempfile import mkstemp
 
 from msilib._msi import (
     MSICOLINFO_NAMES,
+    MSICOLINFO_TYPES,
     MSIDBOPEN_CREATE,
+    MSIDBOPEN_CREATEDIRECT,
+    MSIDBOPEN_DIRECT,
+    MSIDBOPEN_PATCHFILE,
+    MSIDBOPEN_READONLY,
+    MSIDBOPEN_TRANSACT,
+    MSIMODIFY_ASSIGN,
+    MSIMODIFY_DELETE,
     MSIMODIFY_INSERT,
+    MSIMODIFY_INSERT_TEMPORARY,
+    MSIMODIFY_MERGE,
+    MSIMODIFY_REFRESH,
+    MSIMODIFY_REPLACE,
+    MSIMODIFY_SEEK,
+    MSIMODIFY_UPDATE,
+    MSIMODIFY_VALIDATE,
+    MSIMODIFY_VALIDATE_DELETE,
+    MSIMODIFY_VALIDATE_FIELD,
+    MSIMODIFY_VALIDATE_NEW,
     PID_APPNAME,
     PID_AUTHOR,
+    PID_CHARCOUNT,
+    PID_CODEPAGE,
+    PID_COMMENTS,
+    PID_CREATE_DTM,
+    PID_KEYWORDS,
+    PID_LASTAUTHOR,
+    PID_LASTPRINTED,
+    PID_LASTSAVE_DTM,
     PID_PAGECOUNT,
     PID_REVNUMBER,
+    PID_SECURITY,
     PID_SUBJECT,
     PID_TEMPLATE,
     PID_TITLE,
@@ -30,6 +57,52 @@ from msilib._msi import (
 )
 
 __version__ = "0.3.0"
+
+__all__ = [
+    "MSICOLINFO_NAMES",
+    "MSICOLINFO_TYPES",
+    "MSIDBOPEN_CREATE",
+    "MSIDBOPEN_CREATEDIRECT",
+    "MSIDBOPEN_DIRECT",
+    "MSIDBOPEN_PATCHFILE",
+    "MSIDBOPEN_READONLY",
+    "MSIDBOPEN_TRANSACT",
+    "MSIMODIFY_ASSIGN",
+    "MSIMODIFY_DELETE",
+    "MSIMODIFY_INSERT",
+    "MSIMODIFY_INSERT_TEMPORARY",
+    "MSIMODIFY_MERGE",
+    "MSIMODIFY_REFRESH",
+    "MSIMODIFY_REPLACE",
+    "MSIMODIFY_SEEK",
+    "MSIMODIFY_UPDATE",
+    "MSIMODIFY_VALIDATE",
+    "MSIMODIFY_VALIDATE_DELETE",
+    "MSIMODIFY_VALIDATE_FIELD",
+    "MSIMODIFY_VALIDATE_NEW",
+    "PID_APPNAME",
+    "PID_AUTHOR",
+    "PID_CHARCOUNT",
+    "PID_CODEPAGE",
+    "PID_COMMENTS",
+    "PID_CREATE_DTM",
+    "PID_KEYWORDS",
+    "PID_LASTAUTHOR",
+    "PID_LASTPRINTED",
+    "PID_LASTSAVE_DTM",
+    "PID_PAGECOUNT",
+    "PID_REVNUMBER",
+    "PID_SECURITY",
+    "PID_SUBJECT",
+    "PID_TEMPLATE",
+    "PID_TITLE",
+    "PID_WORDCOUNT",
+    "CreateRecord",
+    "FCICreate",
+    "MSIError",
+    "OpenDatabase",
+    "UuidCreate",
+]
 
 AMD64 = "AMD64" in sys.version
 # Keep msilib.Win64 around to preserve backwards compatibility.
@@ -166,9 +239,9 @@ def add_stream(db, name, path) -> None:
     v.Close()
 
 
-def init_database(  # noqa: ANN201
+def init_database(  # noqa: ANN202
     name, schema, ProductName, ProductCode, ProductVersion, Manufacturer
-):  # type: Database
+):
     with contextlib.suppress(OSError):
         os.unlink(name)
     ProductCode = ProductCode.upper()
