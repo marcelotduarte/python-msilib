@@ -23,7 +23,6 @@ from msilib._msi import (
     PID_TITLE,
     PID_WORDCOUNT,
     CreateRecord,
-    Database,
     FCICreate,
     MSIError,
     OpenDatabase,
@@ -167,9 +166,9 @@ def add_stream(db, name, path) -> None:
     v.Close()
 
 
-def init_database(
+def init_database(  # noqa: ANN201
     name, schema, ProductName, ProductCode, ProductVersion, Manufacturer
-) -> Database:
+):  # type: Database
     with contextlib.suppress(OSError):
         os.unlink(name)
     ProductCode = ProductCode.upper()
