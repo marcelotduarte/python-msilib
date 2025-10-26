@@ -1,3 +1,8 @@
+"""Table contents for the standard sequence tables:
+AdminExecuteSequence, AdminUISequence, AdvtExecuteSequence,
+InstallExecuteSequence, and InstallUISequence.
+"""
+
 AdminExecuteSequence = [
     ("InstallInitialize", None, 1500),
     ("InstallFinalize", None, 6600),

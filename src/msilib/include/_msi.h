@@ -6,6 +6,8 @@ preserve
 #define Py_BUILD_CORE
 #include <internal/pycore_modsupport.h>
 
+#define _MSI_SENTINEL { NULL, NULL }
+
 PyDoc_STRVAR(_msi_UuidCreate__doc__,
     "UuidCreate($module, /)\n"
     "--\n"
@@ -14,7 +16,7 @@ PyDoc_STRVAR(_msi_UuidCreate__doc__,
 
 #define _MSI_UUIDCREATE_METHODDEF                                             \
     { "UuidCreate", (PyCFunction)_msi_UuidCreate, METH_NOARGS,                \
-        _msi_UuidCreate__doc__ },
+        _msi_UuidCreate__doc__ }
 
 static PyObject* _msi_UuidCreate_impl(PyObject* module);
 
@@ -38,7 +40,7 @@ PyDoc_STRVAR(_msi_FCICreate__doc__,
 
 #define _MSI_FCICREATE_METHODDEF                                              \
     { "FCICreate", _PyCFunction_CAST(_msi_FCICreate), METH_FASTCALL,          \
-        _msi_FCICreate__doc__ },
+        _msi_FCICreate__doc__ }
 
 static PyObject* _msi_FCICreate_impl(
     PyObject* module, const char* cabname, PyObject* files);
@@ -81,7 +83,7 @@ PyDoc_STRVAR(_msi_Database_Close__doc__,
 
 #define _MSI_DATABASE_CLOSE_METHODDEF                                         \
     { "Close", (PyCFunction)_msi_Database_Close, METH_NOARGS,                 \
-        _msi_Database_Close__doc__ },
+        _msi_Database_Close__doc__ }
 
 static PyObject* _msi_Database_Close_impl(msiobj* self);
 
@@ -99,7 +101,7 @@ PyDoc_STRVAR(_msi_Record_GetFieldCount__doc__,
 
 #define _MSI_RECORD_GETFIELDCOUNT_METHODDEF                                   \
     { "GetFieldCount", (PyCFunction)_msi_Record_GetFieldCount, METH_NOARGS,   \
-        _msi_Record_GetFieldCount__doc__ },
+        _msi_Record_GetFieldCount__doc__ }
 
 static PyObject* _msi_Record_GetFieldCount_impl(msiobj* self);
 
@@ -117,7 +119,7 @@ PyDoc_STRVAR(_msi_Record_GetInteger__doc__,
 
 #define _MSI_RECORD_GETINTEGER_METHODDEF                                      \
     { "GetInteger", (PyCFunction)_msi_Record_GetInteger, METH_O,              \
-        _msi_Record_GetInteger__doc__ },
+        _msi_Record_GetInteger__doc__ }
 
 static PyObject* _msi_Record_GetInteger_impl(msiobj* self, unsigned int field);
 
@@ -144,7 +146,7 @@ PyDoc_STRVAR(_msi_Record_GetString__doc__,
 
 #define _MSI_RECORD_GETSTRING_METHODDEF                                       \
     { "GetString", (PyCFunction)_msi_Record_GetString, METH_O,                \
-        _msi_Record_GetString__doc__ },
+        _msi_Record_GetString__doc__ }
 
 static PyObject* _msi_Record_GetString_impl(msiobj* self, unsigned int field);
 
@@ -171,7 +173,7 @@ PyDoc_STRVAR(_msi_Record_ClearData__doc__,
 
 #define _MSI_RECORD_CLEARDATA_METHODDEF                                       \
     { "ClearData", (PyCFunction)_msi_Record_ClearData, METH_NOARGS,           \
-        _msi_Record_ClearData__doc__ },
+        _msi_Record_ClearData__doc__ }
 
 static PyObject* _msi_Record_ClearData_impl(msiobj* self);
 
@@ -189,7 +191,7 @@ PyDoc_STRVAR(_msi_Record_SetString__doc__,
 
 #define _MSI_RECORD_SETSTRING_METHODDEF                                       \
     { "SetString", _PyCFunction_CAST(_msi_Record_SetString), METH_FASTCALL,   \
-        _msi_Record_SetString__doc__ },
+        _msi_Record_SetString__doc__ }
 
 static PyObject* _msi_Record_SetString_impl(
     msiobj* self, int field, const wchar_t* value);
@@ -233,7 +235,7 @@ PyDoc_STRVAR(_msi_Record_SetStream__doc__,
 
 #define _MSI_RECORD_SETSTREAM_METHODDEF                                       \
     { "SetStream", _PyCFunction_CAST(_msi_Record_SetStream), METH_FASTCALL,   \
-        _msi_Record_SetStream__doc__ },
+        _msi_Record_SetStream__doc__ }
 
 static PyObject* _msi_Record_SetStream_impl(
     msiobj* self, int field, const wchar_t* value);
@@ -277,7 +279,7 @@ PyDoc_STRVAR(_msi_Record_SetInteger__doc__,
 
 #define _MSI_RECORD_SETINTEGER_METHODDEF                                      \
     { "SetInteger", _PyCFunction_CAST(_msi_Record_SetInteger), METH_FASTCALL, \
-        _msi_Record_SetInteger__doc__ },
+        _msi_Record_SetInteger__doc__ }
 
 static PyObject* _msi_Record_SetInteger_impl(
     msiobj* self, int field, int value);
@@ -317,7 +319,7 @@ PyDoc_STRVAR(_msi_SummaryInformation_GetProperty__doc__,
 
 #define _MSI_SUMMARYINFORMATION_GETPROPERTY_METHODDEF                         \
     { "GetProperty", (PyCFunction)_msi_SummaryInformation_GetProperty,        \
-        METH_O, _msi_SummaryInformation_GetProperty__doc__ },
+        METH_O, _msi_SummaryInformation_GetProperty__doc__ }
 
 static PyObject* _msi_SummaryInformation_GetProperty_impl(
     msiobj* self, int field);
@@ -347,7 +349,7 @@ PyDoc_STRVAR(_msi_SummaryInformation_GetPropertyCount__doc__,
 #define _MSI_SUMMARYINFORMATION_GETPROPERTYCOUNT_METHODDEF                    \
     { "GetPropertyCount",                                                     \
         (PyCFunction)_msi_SummaryInformation_GetPropertyCount, METH_NOARGS,   \
-        _msi_SummaryInformation_GetPropertyCount__doc__ },
+        _msi_SummaryInformation_GetPropertyCount__doc__ }
 
 static PyObject* _msi_SummaryInformation_GetPropertyCount_impl(msiobj* self);
 
@@ -370,7 +372,7 @@ PyDoc_STRVAR(_msi_SummaryInformation_SetProperty__doc__,
 
 #define _MSI_SUMMARYINFORMATION_SETPROPERTY_METHODDEF                         \
     { "SetProperty", _PyCFunction_CAST(_msi_SummaryInformation_SetProperty),  \
-        METH_FASTCALL, _msi_SummaryInformation_SetProperty__doc__ },
+        METH_FASTCALL, _msi_SummaryInformation_SetProperty__doc__ }
 
 static PyObject* _msi_SummaryInformation_SetProperty_impl(
     msiobj* self, int field, PyObject* data);
@@ -404,7 +406,7 @@ PyDoc_STRVAR(_msi_SummaryInformation_Persist__doc__,
 
 #define _MSI_SUMMARYINFORMATION_PERSIST_METHODDEF                             \
     { "Persist", (PyCFunction)_msi_SummaryInformation_Persist, METH_NOARGS,   \
-        _msi_SummaryInformation_Persist__doc__ },
+        _msi_SummaryInformation_Persist__doc__ }
 
 static PyObject* _msi_SummaryInformation_Persist_impl(msiobj* self);
 
@@ -426,7 +428,7 @@ PyDoc_STRVAR(_msi_View_Execute__doc__,
 
 #define _MSI_VIEW_EXECUTE_METHODDEF                                           \
     { "Execute", (PyCFunction)_msi_View_Execute, METH_O,                      \
-        _msi_View_Execute__doc__ },
+        _msi_View_Execute__doc__ }
 
 PyDoc_STRVAR(_msi_View_Fetch__doc__,
     "Fetch($self, /)\n"
@@ -436,7 +438,7 @@ PyDoc_STRVAR(_msi_View_Fetch__doc__,
 
 #define _MSI_VIEW_FETCH_METHODDEF                                             \
     { "Fetch", (PyCFunction)_msi_View_Fetch, METH_NOARGS,                     \
-        _msi_View_Fetch__doc__ },
+        _msi_View_Fetch__doc__ }
 
 static PyObject* _msi_View_Fetch_impl(msiobj* self);
 
@@ -456,7 +458,7 @@ PyDoc_STRVAR(_msi_View_GetColumnInfo__doc__,
 
 #define _MSI_VIEW_GETCOLUMNINFO_METHODDEF                                     \
     { "GetColumnInfo", (PyCFunction)_msi_View_GetColumnInfo, METH_O,          \
-        _msi_View_GetColumnInfo__doc__ },
+        _msi_View_GetColumnInfo__doc__ }
 
 static PyObject* _msi_View_GetColumnInfo_impl(msiobj* self, int kind);
 
@@ -488,7 +490,7 @@ PyDoc_STRVAR(_msi_View_Modify__doc__,
 
 #define _MSI_VIEW_MODIFY_METHODDEF                                            \
     { "Modify", _PyCFunction_CAST(_msi_View_Modify), METH_FASTCALL,           \
-        _msi_View_Modify__doc__ },
+        _msi_View_Modify__doc__ }
 
 static PyObject* _msi_View_Modify_impl(msiobj* self, int kind, PyObject* data);
 
@@ -521,7 +523,7 @@ PyDoc_STRVAR(_msi_View_Close__doc__,
 
 #define _MSI_VIEW_CLOSE_METHODDEF                                             \
     { "Close", (PyCFunction)_msi_View_Close, METH_NOARGS,                     \
-        _msi_View_Close__doc__ },
+        _msi_View_Close__doc__ }
 
 static PyObject* _msi_View_Close_impl(msiobj* self);
 
@@ -541,7 +543,7 @@ PyDoc_STRVAR(_msi_Database_OpenView__doc__,
 
 #define _MSI_DATABASE_OPENVIEW_METHODDEF                                      \
     { "OpenView", (PyCFunction)_msi_Database_OpenView, METH_O,                \
-        _msi_Database_OpenView__doc__ },
+        _msi_Database_OpenView__doc__ }
 
 static PyObject* _msi_Database_OpenView_impl(msiobj* self, const wchar_t* sql);
 
@@ -575,7 +577,7 @@ PyDoc_STRVAR(_msi_Database_Commit__doc__,
 
 #define _MSI_DATABASE_COMMIT_METHODDEF                                        \
     { "Commit", (PyCFunction)_msi_Database_Commit, METH_NOARGS,               \
-        _msi_Database_Commit__doc__ },
+        _msi_Database_Commit__doc__ }
 
 static PyObject* _msi_Database_Commit_impl(msiobj* self);
 
@@ -597,7 +599,7 @@ PyDoc_STRVAR(_msi_Database_GetSummaryInformation__doc__,
 #define _MSI_DATABASE_GETSUMMARYINFORMATION_METHODDEF                         \
     { "GetSummaryInformation",                                                \
         (PyCFunction)_msi_Database_GetSummaryInformation, METH_O,             \
-        _msi_Database_GetSummaryInformation__doc__ },
+        _msi_Database_GetSummaryInformation__doc__ }
 
 static PyObject* _msi_Database_GetSummaryInformation_impl(
     msiobj* self, int count);
@@ -631,7 +633,7 @@ PyDoc_STRVAR(_msi_OpenDatabase__doc__,
 
 #define _MSI_OPENDATABASE_METHODDEF                                           \
     { "OpenDatabase", _PyCFunction_CAST(_msi_OpenDatabase), METH_FASTCALL,    \
-        _msi_OpenDatabase__doc__ },
+        _msi_OpenDatabase__doc__ }
 
 static PyObject* _msi_OpenDatabase_impl(
     PyObject* module, const wchar_t* path, int persist);
@@ -678,7 +680,7 @@ PyDoc_STRVAR(_msi_CreateRecord__doc__,
 
 #define _MSI_CREATERECORD_METHODDEF                                           \
     { "CreateRecord", (PyCFunction)_msi_CreateRecord, METH_O,                 \
-        _msi_CreateRecord__doc__ },
+        _msi_CreateRecord__doc__ }
 
 static PyObject* _msi_CreateRecord_impl(PyObject* module, int count);
 

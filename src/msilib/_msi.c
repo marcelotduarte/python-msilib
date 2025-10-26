@@ -565,18 +565,11 @@ static PyObject* _msi_Record_SetInteger_impl(
     Py_RETURN_NONE;
 }
 
-// clang-format off
-static PyMethodDef record_methods[] = {
-    _MSI_RECORD_GETFIELDCOUNT_METHODDEF
-    _MSI_RECORD_GETINTEGER_METHODDEF
-    _MSI_RECORD_GETSTRING_METHODDEF
-    _MSI_RECORD_SETSTRING_METHODDEF
-    _MSI_RECORD_SETSTREAM_METHODDEF
-    _MSI_RECORD_SETINTEGER_METHODDEF
-    _MSI_RECORD_CLEARDATA_METHODDEF
-    { NULL, NULL }
-};
-// clang-format on
+static PyMethodDef record_methods[]
+    = { _MSI_RECORD_GETFIELDCOUNT_METHODDEF, _MSI_RECORD_GETINTEGER_METHODDEF,
+          _MSI_RECORD_GETSTRING_METHODDEF, _MSI_RECORD_SETSTRING_METHODDEF,
+          _MSI_RECORD_SETSTREAM_METHODDEF, _MSI_RECORD_SETINTEGER_METHODDEF,
+          _MSI_RECORD_CLEARDATA_METHODDEF, _MSI_SENTINEL };
 
 static PyTypeObject record_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "_msi.Record", /*tp_name*/
@@ -777,15 +770,11 @@ static PyObject* _msi_SummaryInformation_Persist_impl(msiobj* self)
     Py_RETURN_NONE;
 }
 
-// clang-format off
-static PyMethodDef summary_methods[] = {
-    _MSI_SUMMARYINFORMATION_GETPROPERTY_METHODDEF
-    _MSI_SUMMARYINFORMATION_GETPROPERTYCOUNT_METHODDEF
-    _MSI_SUMMARYINFORMATION_SETPROPERTY_METHODDEF
-    _MSI_SUMMARYINFORMATION_PERSIST_METHODDEF
-    { NULL, NULL }
-};
-// clang-format on
+static PyMethodDef summary_methods[]
+    = { _MSI_SUMMARYINFORMATION_GETPROPERTY_METHODDEF,
+          _MSI_SUMMARYINFORMATION_GETPROPERTYCOUNT_METHODDEF,
+          _MSI_SUMMARYINFORMATION_SETPROPERTY_METHODDEF,
+          _MSI_SUMMARYINFORMATION_PERSIST_METHODDEF, _MSI_SENTINEL };
 
 static PyTypeObject summary_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "_msi.SummaryInformation", /*tp_name*/
@@ -953,16 +942,9 @@ static PyObject* _msi_View_Close_impl(msiobj* self)
     Py_RETURN_NONE;
 }
 
-// clang-format off
-static PyMethodDef view_methods[] = {
-    _MSI_VIEW_EXECUTE_METHODDEF
-    _MSI_VIEW_GETCOLUMNINFO_METHODDEF
-    _MSI_VIEW_FETCH_METHODDEF
-    _MSI_VIEW_MODIFY_METHODDEF
-    _MSI_VIEW_CLOSE_METHODDEF
-    { NULL, NULL }
-};
-// clang-format on
+static PyMethodDef view_methods[] = { _MSI_VIEW_EXECUTE_METHODDEF,
+    _MSI_VIEW_GETCOLUMNINFO_METHODDEF, _MSI_VIEW_FETCH_METHODDEF,
+    _MSI_VIEW_MODIFY_METHODDEF, _MSI_VIEW_CLOSE_METHODDEF, _MSI_SENTINEL };
 
 static PyTypeObject msiview_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "_msi.View", /*tp_name*/
@@ -1086,15 +1068,10 @@ static PyObject* _msi_Database_GetSummaryInformation_impl(
     return (PyObject*)oresult;
 }
 
-// clang-format off
-static PyMethodDef db_methods[] = {
-    _MSI_DATABASE_OPENVIEW_METHODDEF
-    _MSI_DATABASE_COMMIT_METHODDEF
-    _MSI_DATABASE_GETSUMMARYINFORMATION_METHODDEF
-    _MSI_DATABASE_CLOSE_METHODDEF
-    { NULL, NULL }
-};
-// clang-format on
+static PyMethodDef db_methods[]
+    = { _MSI_DATABASE_OPENVIEW_METHODDEF, _MSI_DATABASE_COMMIT_METHODDEF,
+          _MSI_DATABASE_GETSUMMARYINFORMATION_METHODDEF,
+          _MSI_DATABASE_CLOSE_METHODDEF, _MSI_SENTINEL };
 
 static PyTypeObject msidb_Type = {
     PyVarObject_HEAD_INIT(NULL, 0) "_msi.Database", /*tp_name*/
@@ -1207,15 +1184,9 @@ static PyObject* _msi_CreateRecord_impl(PyObject* module, int count)
     return record_new(h);
 }
 
-// clang-format off
-static PyMethodDef msi_methods[] = {
-        _MSI_UUIDCREATE_METHODDEF
-        _MSI_FCICREATE_METHODDEF
-        _MSI_OPENDATABASE_METHODDEF
-        _MSI_CREATERECORD_METHODDEF
-        {NULL,          NULL}           /* sentinel */
-};
-// clang-format on
+static PyMethodDef msi_methods[] = { _MSI_UUIDCREATE_METHODDEF,
+    _MSI_FCICREATE_METHODDEF, _MSI_OPENDATABASE_METHODDEF,
+    _MSI_CREATERECORD_METHODDEF, _MSI_SENTINEL };
 
 static char msi_doc[] = "Documentation";
 

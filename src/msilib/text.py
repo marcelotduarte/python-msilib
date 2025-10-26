@@ -1,4 +1,8 @@
-import msilib, os
+"""Definitions for the UIText and ActionText tables, for the standard installer
+actions.
+"""
+
+import os
 
 dirname = os.path.dirname(__file__)
 

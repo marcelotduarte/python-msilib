@@ -1,13 +1,134 @@
+"""Read and write Microsoft Installer files."""
+
 # Copyright (C) 2005 Martin v. Löwis
 # Licensed to PSF under a Contributor Agreement.
-from msilib._msi import *
+import contextlib
 import fnmatch
 import os
 import re
 import string
 import sys
+from tempfile import mkstemp
+
+from msilib._msi import (
+    MSICOLINFO_NAMES,
+    MSICOLINFO_TYPES,
+    MSIDBOPEN_CREATE,
+    MSIDBOPEN_CREATEDIRECT,
+    MSIDBOPEN_DIRECT,
+    MSIDBOPEN_PATCHFILE,
+    MSIDBOPEN_READONLY,
+    MSIDBOPEN_TRANSACT,
+    MSIMODIFY_ASSIGN,
+    MSIMODIFY_DELETE,
+    MSIMODIFY_INSERT,
+    MSIMODIFY_INSERT_TEMPORARY,
+    MSIMODIFY_MERGE,
+    MSIMODIFY_REFRESH,
+    MSIMODIFY_REPLACE,
+    MSIMODIFY_SEEK,
+    MSIMODIFY_UPDATE,
+    MSIMODIFY_VALIDATE,
+    MSIMODIFY_VALIDATE_DELETE,
+    MSIMODIFY_VALIDATE_FIELD,
+    MSIMODIFY_VALIDATE_NEW,
+    PID_APPNAME,
+    PID_AUTHOR,
+    PID_CHARCOUNT,
+    PID_CODEPAGE,
+    PID_COMMENTS,
+    PID_CREATE_DTM,
+    PID_KEYWORDS,
+    PID_LASTAUTHOR,
+    PID_LASTPRINTED,
+    PID_LASTSAVE_DTM,
+    PID_PAGECOUNT,
+    PID_REVNUMBER,
+    PID_SECURITY,
+    PID_SUBJECT,
+    PID_TEMPLATE,
+    PID_TITLE,
+    PID_WORDCOUNT,
+    CreateRecord,
+    FCICreate,
+    MSIError,
+    OpenDatabase,
+    UuidCreate,
+)
 
 __version__ = "0.3.0"
+
+__all__ = [
+    "CAB",
+    "MSICOLINFO_NAMES",
+    "MSICOLINFO_TYPES",
+    "MSIDBOPEN_CREATE",
+    "MSIDBOPEN_CREATEDIRECT",
+    "MSIDBOPEN_DIRECT",
+    "MSIDBOPEN_PATCHFILE",
+    "MSIDBOPEN_READONLY",
+    "MSIDBOPEN_TRANSACT",
+    "MSIMODIFY_ASSIGN",
+    "MSIMODIFY_DELETE",
+    "MSIMODIFY_INSERT",
+    "MSIMODIFY_INSERT_TEMPORARY",
+    "MSIMODIFY_MERGE",
+    "MSIMODIFY_REFRESH",
+    "MSIMODIFY_REPLACE",
+    "MSIMODIFY_SEEK",
+    "MSIMODIFY_UPDATE",
+    "MSIMODIFY_VALIDATE",
+    "MSIMODIFY_VALIDATE_DELETE",
+    "MSIMODIFY_VALIDATE_FIELD",
+    "MSIMODIFY_VALIDATE_NEW",
+    "PID_APPNAME",
+    "PID_AUTHOR",
+    "PID_CHARCOUNT",
+    "PID_CODEPAGE",
+    "PID_COMMENTS",
+    "PID_CREATE_DTM",
+    "PID_KEYWORDS",
+    "PID_LASTAUTHOR",
+    "PID_LASTPRINTED",
+    "PID_LASTSAVE_DTM",
+    "PID_PAGECOUNT",
+    "PID_REVNUMBER",
+    "PID_SECURITY",
+    "PID_SUBJECT",
+    "PID_TEMPLATE",
+    "PID_TITLE",
+    "PID_WORDCOUNT",
+    "Binary",
+    "Control",
+    "CreateRecord",
+    "Dialog",
+    "Directory",
+    "FCICreate",
+    "Feature",
+    "MSIError",
+    "OpenDatabase",
+    "RadioButtonGroup",
+    "Table",
+    "UuidCreate",
+    "add_data",
+    "add_stream",
+    "add_tables",
+    "change_sequence",
+    "datasizemask",
+    "gen_uuid",
+    "init_database",
+    "knownbits",
+    "make_id",
+    "type_binary",
+    "type_key",
+    "type_localizable",
+    "type_long",
+    "type_nullable",
+    "type_short",
+    "type_string",
+    "type_valid",
+    "typemask",
+]
 
 AMD64 = "AMD64" in sys.version
 # Keep msilib.Win64 around to preserve backwards compatibility.
@@ -38,30 +159,27 @@ knownbits = (
 
 
 class Table:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
         self.fields = []
 
-    def add_field(self, index, name, type):
+    def add_field(self, index, name, type) -> None:
         self.fields.append((index, name, type))
 
-    def sql(self):
+    def sql(self) -> str:
         fields = []
         keys = []
         self.fields.sort()
         fields = [None] * len(self.fields)
-        for index, name, type in self.fields:
-            index -= 1
-            unk = type & ~knownbits
+        for index, name, ftype in self.fields:
+            idx = index - 1
+            unk = ftype & ~knownbits
             if unk:
-                print("%s.%s unknown bits %x" % (self.name, name, unk))
-            size = type & datasizemask
-            dtype = type & typemask
+                print(f"{self.name}.{name} unknown bits {unk:x}")
+            size = ftype & datasizemask
+            dtype = ftype & typemask
             if dtype == type_string:
-                if size:
-                    tname = "CHAR(%d)" % size
-                else:
-                    tname = "CHAR"
+                tname = f"CHAR({size})" if size else "CHAR"
             elif dtype == type_short:
                 assert size == 2
                 tname = "SHORT"
@@ -73,25 +191,18 @@ class Table:
                 tname = "OBJECT"
             else:
                 tname = "unknown"
-                print("%s.%sunknown integer type %d" % (self.name, name, size))
-            if type & type_nullable:
-                flags = ""
-            else:
-                flags = " NOT NULL"
-            if type & type_localizable:
+                print(f"{self.name}.{name} unknown integer type {size}")
+            flags = "" if ftype & type_nullable else " NOT NULL"
+            if ftype & type_localizable:
                 flags += " LOCALIZABLE"
-            fields[index] = "`%s` %s%s" % (name, tname, flags)
-            if type & type_key:
-                keys.append("`%s`" % name)
+            fields[idx] = f"`{name}` {tname}{flags}"
+            if ftype & type_key:
+                keys.append(f"`{name}`")
         fields = ", ".join(fields)
         keys = ", ".join(keys)
-        return "CREATE TABLE %s (%s PRIMARY KEY %s)" % (
-            self.name,
-            fields,
-            keys,
-        )
+        return f"CREATE TABLE {self.name} ({fields} PRIMARY KEY {keys})"
 
-    def create(self, db):
+    def create(self, db) -> None:
         v = db.OpenView(self.sql())
         v.Execute(None)
         v.Close()
@@ -101,8 +212,10 @@ class _Unspecified:
     pass
 
 
-def change_sequence(seq, action, seqno=_Unspecified, cond=_Unspecified):
-    "Change the sequence number of an action in a sequence list"
+def change_sequence(
+    seq, action, seqno=_Unspecified, cond=_Unspecified
+) -> None:
+    """Change the sequence number of an action in a sequence list."""
     for i in range(len(seq)):
         if seq[i][0] == action:
             if cond is _Unspecified:
@@ -111,11 +224,12 @@ def change_sequence(seq, action, seqno=_Unspecified, cond=_Unspecified):
                 seqno = seq[i][2]
             seq[i] = (action, cond, seqno)
             return
-    raise ValueError("Action not found in sequence")
+    msg = "Action not found in sequence"
+    raise ValueError(msg)
 
 
-def add_data(db, table, values):
-    v = db.OpenView("SELECT * FROM `%s`" % table)
+def add_data(db, table, values) -> None:
+    v = db.OpenView(f"SELECT * FROM `{table}`")
     count = v.GetColumnInfo(MSICOLINFO_NAMES).GetFieldCount()
     r = CreateRecord(count)
     for value in values:
@@ -131,24 +245,20 @@ def add_data(db, table, values):
             elif isinstance(field, Binary):
                 r.SetStream(i + 1, field.name)
             else:
-                raise TypeError(
-                    "Unsupported type %s" % field.__class__.__name__
-                )
+                msg = f"Unsupported type {field.__class__.__name__}"
+                raise TypeError(msg)
         try:
             v.Modify(MSIMODIFY_INSERT, r)
-        except Exception:
-            raise MSIError(
-                "Could not insert " + repr(values) + " into " + table
-            )
+        except Exception:  # noqa: BLE001
+            msg = f"Could not insert {values!r} into {table}"
+            raise MSIError(msg) from None
 
         r.ClearData()
     v.Close()
 
 
-def add_stream(db, name, path):
-    v = db.OpenView(
-        "INSERT INTO _Streams (Name, Data) VALUES ('%s', ?)" % name
-    )
+def add_stream(db, name, path) -> None:
+    v = db.OpenView(f"INSERT INTO _Streams (Name, Data) VALUES ('{name}', ?)")
     r = CreateRecord(1)
     r.SetStream(1, path)
     v.Execute(r)
@@ -158,10 +268,8 @@ def add_stream(db, name, path):
 def init_database(
     name, schema, ProductName, ProductCode, ProductVersion, Manufacturer
 ):
-    try:
+    with contextlib.suppress(OSError):
         os.unlink(name)
-    except OSError:
-        pass
     ProductCode = ProductCode.upper()
     # Create the database
     db = OpenDatabase(name, MSIDBOPEN_CREATE)
@@ -169,7 +277,7 @@ def init_database(
     for t in schema.tables:
         t.create(db)
     # Fill the validation table
-    add_data(db, "_Validation", schema._Validation_records)
+    add_data(db, "_Validation", schema._Validation_records)  # noqa: SLF001
     # Initialize the summary information, allowing at most 20 properties
     si = db.GetSummaryInformation(20)
     si.SetProperty(PID_TITLE, "Installation Database")
@@ -202,53 +310,51 @@ def init_database(
     return db
 
 
-def add_tables(db, module):
+def add_tables(db, module) -> None:
     for table in module.tables:
         add_data(db, table, getattr(module, table))
 
 
-def make_id(str):
+def make_id(value: str) -> str:
     identifier_chars = string.ascii_letters + string.digits + "._"
-    str = "".join([c if c in identifier_chars else "_" for c in str])
-    if str[0] in (string.digits + "."):
-        str = "_" + str
-    assert re.match("^[A-Za-z_][A-Za-z0-9_.]*$", str), "FILE" + str
-    return str
+    value = "".join([c if c in identifier_chars else "_" for c in value])
+    if value[0] in (string.digits + "."):
+        value = "_" + value
+    assert re.match("^[A-Za-z_][A-Za-z0-9_.]*$", value), "FILE" + value
+    return value
 
 
-def gen_uuid():
+def gen_uuid() -> str:
     return "{" + UuidCreate().upper() + "}"
 
 
 class CAB:
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
         self.files = []
         self.filenames = set()
         self.index = 0
 
-    def gen_id(self, file):
+    def gen_id(self, file) -> str:
         logical = _logical = make_id(file)
         pos = 1
         while logical in self.filenames:
-            logical = "%s.%d" % (_logical, pos)
+            logical = f"{_logical}.{pos}"
             pos += 1
         self.filenames.add(logical)
         return logical
 
-    def append(self, full, file, logical):
+    def append(self, full, file, logical) -> tuple[int, str]:
         if os.path.isdir(full):
-            return
+            return None
         if not logical:
             logical = self.gen_id(file)
         self.index += 1
         self.files.append((full, logical))
         return self.index, logical
 
-    def commit(self, db):
-        from tempfile import mktemp
-
-        filename = mktemp()
+    def commit(self, db) -> None:
+        filename = mkstemp()
         FCICreate(filename, self.files)
         add_data(
             db, "Media", [(1, self.index, None, "#" + self.name, None, None)]
@@ -271,20 +377,22 @@ class Directory:
         _logical,
         default,
         componentflags=None,
-    ):
-        """Create a new directory in the Directory table. There is a current component
-        at each point in time for the directory, which is either explicitly created
-        through start_component, or implicitly when files are added for the first
-        time. Files are added into the current component, and into the cab file.
-        To create a directory, a base directory object needs to be specified (can be
-        None), the path to the physical directory, and a logical directory name.
-        Default specifies the DefaultDir slot in the directory table. componentflags
-        specifies the default flags that new components get."""
+    ) -> None:
+        """Create a new directory in the Directory table. There is a current
+        component at each point in time for the directory, which is either
+        explicitly created through start_component, or implicitly when files
+        are added for the first time. Files are added into the current
+        component, and into the cab file. To create a directory, a base
+        directory object needs to be specified (can be None), the path to the
+        physical directory, and a logical directory name. Default specifies the
+        DefaultDir slot in the directory table. componentflags specifies the
+        default flags that new components get.
+        """
         index = 1
         _logical = make_id(_logical)
         logical = _logical
         while logical in _directories:
-            logical = "%s%d" % (_logical, index)
+            logical = f"{_logical}{index}"
             index += 1
         _directories.add(logical)
         self.db = db
@@ -307,18 +415,16 @@ class Directory:
 
     def start_component(
         self, component=None, feature=None, flags=None, keyfile=None, uuid=None
-    ):
-        """Add an entry to the Component table, and make this component the current for this
-        directory. If no component name is given, the directory name is used. If no feature
-        is given, the current feature is used. If no flags are given, the directory's default
-        flags are used. If no keyfile is given, the KeyPath is left null in the Component
-        table."""
+    ) -> None:
+        """Add an entry to the Component table, and make this component the
+        current for this directory. If no component name is given, the
+        directory name is used. If no feature is given, the current feature is
+        used. If no flags are given, the directory's default flags are used. If
+        no keyfile is given, the KeyPath is left null in the Component table.
+        """
         if flags is None:
             flags = self.componentflags
-        if uuid is None:
-            uuid = gen_uuid()
-        else:
-            uuid = uuid.upper()
+        uuid = gen_uuid() if uuid is None else uuid.upper()
         if component is None:
             component = self.logical
         self.component = component
@@ -338,10 +444,10 @@ class Directory:
             feature = current_feature
         add_data(self.db, "FeatureComponents", [(feature.id, component)])
 
-    def make_short(self, file):
+    def make_short(self, file: str) -> str:
         oldfile = file
         file = file.replace("+", "_")
-        file = "".join(c for c in file if not c in r' "/\[]:;=,')
+        file = "".join(c for c in file if c not in r' "/\[]:;=,')
         parts = file.split(".")
         if len(parts) > 1:
             prefix = "".join(parts[:-1]).upper()
@@ -358,10 +464,7 @@ class Directory:
             and file == oldfile
             and (not suffix or len(suffix) <= 3)
         ):
-            if suffix:
-                file = prefix + "." + suffix
-            else:
-                file = prefix
+            file = prefix + "." + suffix if suffix else prefix
         else:
             file = None
         if file is None or file in self.short_names:
@@ -371,9 +474,9 @@ class Directory:
             pos = 1
             while 1:
                 if suffix:
-                    file = "%s~%d.%s" % (prefix, pos, suffix)
+                    file = f"{prefix}~{pos}.{suffix}"
                 else:
-                    file = "%s~%d" % (prefix, pos)
+                    file = f"{prefix}~{pos}"
                 if file not in self.short_names:
                     break
                 pos += 1
@@ -386,12 +489,20 @@ class Directory:
         )  # restrictions on short names
         return file
 
-    def add_file(self, file, src=None, version=None, language=None):
-        """Add a file to the current component of the directory, starting a new one
-        if there is no current component. By default, the file name in the source
-        and the file table will be identical. If the src file is specified, it is
-        interpreted relative to the current directory. Optionally, a version and a
-        language can be specified for the entry in the File table."""
+    def add_file(
+        self,
+        file: str,
+        src: str | None = None,
+        version: str | None = None,
+        language: str | None = None,
+    ) -> str:
+        """Add a file to the current component of the directory, starting a new
+        one if there is no current component. By default, the file name in the
+        source and the file table will be identical. If the src file is
+        specified, it is interpreted relative to the current directory.
+        Optionally, a version and a language can be specified for the entry in
+        the File table.
+        """
         if not self.component:
             self.start_component(self.logical, current_feature, 0)
         if not src:
@@ -399,18 +510,14 @@ class Directory:
             src = file
             file = os.path.basename(file)
         absolute = os.path.join(self.absolute, src)
-        assert not re.search(
-            r'[\?|><:/*]"', file
-        )  # restrictions on long names
-        if file in self.keyfiles:
-            logical = self.keyfiles[file]
-        else:
-            logical = None
+        # restrictions on long names
+        assert not re.search(r'[\?|><:/*]"', file)
+        logical = self.keyfiles.get(file, None)
         sequence, logical = self.cab.append(absolute, file, logical)
         assert logical not in self.ids
         self.ids.add(logical)
         short = self.make_short(file)
-        full = "%s|%s" % (short, file)
+        full = f"{short}|{file}"
         filesize = os.stat(absolute).st_size
         # constants.msidbFileAttributesVital
         # Compressed omitted, since it is the database default
@@ -450,14 +557,14 @@ class Directory:
                     (
                         logical + "c",
                         self.component,
-                        "%sC|%sc" % (short, file),
+                        f"{short}C|{file}c",
                         self.logical,
                         2,
                     ),
                     (
                         logical + "o",
                         self.component,
-                        "%sO|%so" % (short, file),
+                        f"{short}O|{file}o",
                         self.logical,
                         2,
                     ),
@@ -465,9 +572,10 @@ class Directory:
             )
         return logical
 
-    def glob(self, pattern, exclude=None):
+    def glob(self, pattern: str, exclude=None) -> list[str]:
         """Add a list of files to the current component as specified in the
-        glob pattern. Individual files can be excluded in the exclude list."""
+        glob pattern. Individual files can be excluded in the exclude list.
+        """
         try:
             files = os.listdir(self.absolute)
         except OSError:
@@ -481,8 +589,8 @@ class Directory:
             self.add_file(f)
         return files
 
-    def remove_pyc(self):
-        "Remove .pyc files on uninstall"
+    def remove_pyc(self) -> None:
+        """Remove .pyc files on uninstall."""
         add_data(
             self.db,
             "RemoveFile",
@@ -491,11 +599,11 @@ class Directory:
 
 
 class Binary:
-    def __init__(self, fname):
+    def __init__(self, fname) -> None:
         self.name = fname
 
-    def __repr__(self):
-        return 'msilib.Binary(os.path.join(dirname,"%s"))' % self.name
+    def __repr__(self) -> str:
+        return f'msilib.Binary(os.path.join(dirname,"{self.name}"))'
 
 
 class Feature:
@@ -510,7 +618,7 @@ class Feature:
         parent=None,
         directory=None,
         attributes=0,
-    ):
+    ) -> None:
         self.id = id
         if parent:
             parent = parent.id
@@ -520,31 +628,31 @@ class Feature:
             [(id, parent, title, desc, display, level, directory, attributes)],
         )
 
-    def set_current(self):
+    def set_current(self) -> None:
         global current_feature
         current_feature = self
 
 
 class Control:
-    def __init__(self, dlg, name):
+    def __init__(self, dlg, name) -> None:
         self.dlg = dlg
         self.name = name
 
-    def event(self, event, argument, condition="1", ordering=None):
+    def event(self, event, argument, condition="1", ordering=None) -> None:
         add_data(
             self.dlg.db,
             "ControlEvent",
             [(self.dlg.name, self.name, event, argument, condition, ordering)],
         )
 
-    def mapping(self, event, attribute):
+    def mapping(self, event, attribute) -> None:
         add_data(
             self.dlg.db,
             "EventMapping",
             [(self.dlg.name, self.name, event, attribute)],
         )
 
-    def condition(self, action, condition):
+    def condition(self, action, condition) -> None:
         add_data(
             self.dlg.db,
             "ControlCondition",
@@ -553,13 +661,13 @@ class Control:
 
 
 class RadioButtonGroup(Control):
-    def __init__(self, dlg, name, property):
+    def __init__(self, dlg, name, property) -> None:
         self.dlg = dlg
         self.name = name
         self.property = property
         self.index = 1
 
-    def add(self, name, x, y, w, h, text, value=None):
+    def add(self, name, x, y, w, h, text, value=None) -> None:
         if value is None:
             value = name
         add_data(
@@ -573,7 +681,7 @@ class RadioButtonGroup(Control):
 class Dialog:
     def __init__(
         self, db, name, x, y, w, h, attr, title, first, default, cancel
-    ):
+    ) -> None:
         self.db = db
         self.name = name
         self.x, self.y, self.w, self.h = x, y, w, h
@@ -583,7 +691,9 @@ class Dialog:
             [(name, x, y, w, h, attr, title, first, default, cancel)],
         )
 
-    def control(self, name, type, x, y, w, h, attr, prop, text, next, help):
+    def control(
+        self, name, type, x, y, w, h, attr, prop, text, next, help
+    ) -> Control:
         add_data(
             self.db,
             "Control",
@@ -606,27 +716,27 @@ class Dialog:
         )
         return Control(self, name)
 
-    def text(self, name, x, y, w, h, attr, text):
+    def text(self, name, x, y, w, h, attr, text) -> Control:
         return self.control(
             name, "Text", x, y, w, h, attr, None, text, None, None
         )
 
-    def bitmap(self, name, x, y, w, h, text):
+    def bitmap(self, name, x, y, w, h, text) -> Control:
         return self.control(
             name, "Bitmap", x, y, w, h, 1, None, text, None, None
         )
 
-    def line(self, name, x, y, w, h):
+    def line(self, name, x, y, w, h) -> Control:
         return self.control(
             name, "Line", x, y, w, h, 1, None, None, None, None
         )
 
-    def pushbutton(self, name, x, y, w, h, attr, text, next):
+    def pushbutton(self, name, x, y, w, h, attr, text, next) -> Control:
         return self.control(
             name, "PushButton", x, y, w, h, attr, None, text, next, None
         )
 
-    def radiogroup(self, name, x, y, w, h, attr, prop, text, next):
+    def radiogroup(self, name, x, y, w, h, attr, prop, text, next) -> Control:
         add_data(
             self.db,
             "Control",
@@ -649,7 +759,7 @@ class Dialog:
         )
         return RadioButtonGroup(self, name, prop)
 
-    def checkbox(self, name, x, y, w, h, attr, prop, text, next):
+    def checkbox(self, name, x, y, w, h, attr, prop, text, next) -> Control:
         return self.control(
             name, "CheckBox", x, y, w, h, attr, prop, text, next, None
         )
