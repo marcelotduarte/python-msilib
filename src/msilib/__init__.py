@@ -5,9 +5,9 @@
 import contextlib
 import fnmatch
 import os
+import platform
 import re
 import string
-import sys
 from tempfile import mkstemp
 
 from msilib._msi import (
@@ -130,9 +130,10 @@ __all__ = [
     "typemask",
 ]
 
-AMD64 = "AMD64" in sys.version
-# Keep msilib.Win64 around to preserve backwards compatibility.
-Win64 = AMD64
+
+# Should work in windows, but also in mingw, cygwin, ...
+AMD64 = platform.machine() in ("x64", "x86_64", "AMD64")
+ARM64 = platform.machine() in ("aarch64", "arm64", "ARM64")
 
 # Partially taken from Wine
 datasizemask = 0x00FF
@@ -283,8 +284,11 @@ def init_database(
     si.SetProperty(PID_TITLE, "Installation Database")
     si.SetProperty(PID_SUBJECT, ProductName)
     si.SetProperty(PID_AUTHOR, Manufacturer)
+    # https://learn.microsoft.com/en-us/windows/win32/msi/template-summary
     if AMD64:
         si.SetProperty(PID_TEMPLATE, "x64;1033")
+    elif ARM64:
+        si.SetProperty(PID_TEMPLATE, "Arm64;1033")
     else:
         si.SetProperty(PID_TEMPLATE, "Intel;1033")
     si.SetProperty(PID_REVNUMBER, gen_uuid())
@@ -429,8 +433,9 @@ class Directory:
         if component is None:
             component = self.logical
         self.component = component
-        if AMD64:
-            flags |= 256
+        # https://learn.microsoft.com/pt-br/windows/win32/msi/component-table
+        if AMD64 or ARM64:
+            flags |= 256  # msidbComponentAttributes64bit
         if keyfile:
             keyid = self.cab.gen_id(keyfile)
             self.keyfiles[keyfile] = keyid
@@ -485,9 +490,8 @@ class Directory:
                 if pos in (10, 100, 1000):
                     prefix = prefix[:-1]
         self.short_names.add(file)
-        assert not re.search(
-            r'[\?|><:/*"+,;=\[\]]', file
-        )  # restrictions on short names
+        # restrictions on short names
+        assert not re.search(r'[\?|><:/*"+,;=\[\]]', file)
         return file
 
     def add_file(
