@@ -354,7 +354,8 @@ class CAB:
         return self.index, logical
 
     def commit(self, db) -> None:
-        filename = mkstemp()
+        fd, filename = mkstemp()
+        os.close(fd)
         FCICreate(filename, self.files)
         add_data(
             db, "Media", [(1, self.index, None, "#" + self.name, None, None)]
@@ -464,7 +465,7 @@ class Directory:
             and file == oldfile
             and (not suffix or len(suffix) <= 3)
         ):
-            file = prefix + "." + suffix if suffix else prefix
+            file = f"{prefix}.{suffix}" if suffix else prefix
         else:
             file = None
         if file is None or file in self.short_names:
