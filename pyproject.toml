@@ -37,6 +37,9 @@ requires-python = ">=3.13"
 name = "Marcelo Duarte"
 email = "marcelotduarte@users.noreply.github.com"
 
+[[project.authors]]
+name = " Martin v. Löwis"
+
 [project.optional-dependencies]
 dev = [
     "bump-my-version==1.2.3",
@@ -49,10 +52,9 @@ tests = [
 ]
 
 [project.urls]
-#Home = "https://marcelotduarte.github.io/cx_Freeze"
-#Changelog = "https://github.com/marcelotduarte/python-msilib/CHANGELOG.md"
-#Documentation = "https://cx-freeze.readthedocs.io"
 Source = "https://github.com/marcelotduarte/python-msilib"
+Changelog = "https://github.com/marcelotduarte/python-msilib/releases"
+Documentation = "https://docs.python.org/3.12/library/msilib.html"
 
 [tool.setuptools]
 include-package-data = true
@@ -65,7 +67,10 @@ version = {attr = "msilib.__version__"}
 [[tool.setuptools.ext-modules]]
 name = "msilib._msi"
 sources = ["src/msilib/_msi.c"]
-depends = ["src/msilib/include/_msi.h"]
+depends = [
+    "src/msilib/include/_msi.h",
+    "src/msilib/include/pythoncapi_compat.h"
+]
 libraries = ["msi","rpcrt4", "cabinet"]
 
 [tool.setuptools.packages.find]
