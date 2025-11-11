@@ -135,6 +135,9 @@ __all__ = [
 AMD64 = platform.machine() in ("x64", "x86_64", "AMD64")
 ARM64 = platform.machine() in ("aarch64", "arm64", "ARM64")
 
+# Keep msilib.Win64 around to preserve backwards compatibility.
+Win64 = AMD64
+
 # Partially taken from Wine
 datasizemask = 0x00FF
 type_valid = 0x0100
@@ -292,10 +295,11 @@ def init_database(
     else:
         si.SetProperty(PID_TEMPLATE, "Intel;1033")
     si.SetProperty(PID_REVNUMBER, gen_uuid())
-    si.SetProperty(
-        PID_WORDCOUNT, 2
-    )  # long file names, compressed, original media
-    si.SetProperty(PID_PAGECOUNT, 200)
+    # https://learn.microsoft.com/en-us/windows/win32/msi/word-count-summary
+    # 2 = long file names, compressed, original media
+    si.SetProperty(PID_WORDCOUNT, 2)
+    # https://learn.microsoft.com/en-us/windows/win32/msi/page-count-summary
+    si.SetProperty(PID_PAGECOUNT, 200)  # minimum of Windows Installer 2.0
     si.SetProperty(PID_APPNAME, "Python MSI Library")
     # XXX more properties
     si.Persist()
