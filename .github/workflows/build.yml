@@ -28,15 +28,15 @@ jobs:
                   "arch": "x86_64",
                   "tag": "cp3{13,13t,14,14t}-win_amd64",
               },
+              {
+                  "os": "windows",
+                  "os-version": "11-arm",
+                  "arch": "arm64",
+                  "tag": "cp3{13,13t,14,14t}-win_arm64",
+              },
           ]
           if "${{ github.event_name }}" != "pull_request":
             include += [
-                {
-                    "os": "windows",
-                    "os-version": "11-arm",
-                    "arch": "arm64",
-                    "tag": "cp3{13,13t,14,14t}-win_arm64",
-                },
                 {
                     "os": "windows",
                     "os-version": "latest",
