@@ -34,15 +34,12 @@ jobs:
                   "arch": "arm64",
                   "tag": "cp3{13,13t,14,14t}-win_arm64",
               },
-          ]
-          if "${{ github.event_name }}" != "pull_request":
-            include += [
-                {
-                    "os": "windows",
-                    "os-version": "latest",
-                    "arch": "x86",
-                    "tag": "cp3{13,13t,14,14t}-win32",
-                },
+              {
+                  "os": "windows",
+                  "os-version": "latest",
+                  "arch": "x86",
+                  "tag": "cp3{13,13t,14,14t}-win32",
+              },
             ]
           with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
             print("data="+json.dumps({"include": include}), file=f)
