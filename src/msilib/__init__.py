@@ -299,7 +299,11 @@ def init_database(
     # 2 = long file names, compressed, original media
     si.SetProperty(PID_WORDCOUNT, 2)
     # https://learn.microsoft.com/en-us/windows/win32/msi/page-count-summary
-    si.SetProperty(PID_PAGECOUNT, 200)  # minimum of Windows Installer 2.0
+    # https://learn.microsoft.com/en-us/windows/win32/msi/using-64-bit-windows-installer-packages
+    if ARM64:
+        si.SetProperty(PID_PAGECOUNT, 500)  # minimum of Windows Installer 5.0
+    else:
+        si.SetProperty(PID_PAGECOUNT, 200)  # minimum of Windows Installer 2.0
     si.SetProperty(PID_APPNAME, "Python MSI Library")
     # XXX more properties
     si.Persist()
@@ -437,7 +441,7 @@ class Directory:
         if component is None:
             component = self.logical
         self.component = component
-        # https://learn.microsoft.com/pt-br/windows/win32/msi/component-table
+        # https://learn.microsoft.com/en-us/windows/win32/msi/component-table
         if AMD64 or ARM64:
             flags |= 256  # msidbComponentAttributes64bit
         if keyfile:
