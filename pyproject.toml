@@ -40,12 +40,12 @@ email = "marcelotduarte@users.noreply.github.com"
 [project.optional-dependencies]
 dev = [
     "bump-my-version==1.2.3",
-    "cibuildwheel==3.2.0",
-    "pre-commit==4.3.0",           # python_version >= 3.9
+    "cibuildwheel==3.2.1",
+    "pre-commit==4.4.0",
 ]
 tests = [
-    "coverage==7.10.7",
-    "pytest==8.4.2",
+    "coverage==7.11.3",
+    "pytest==9.0.0",
 ]
 
 [project.urls]
