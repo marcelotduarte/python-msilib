@@ -59,7 +59,7 @@ repos:
       - id: shellcheck
         name: shell script analysis tool
         entry: shellcheck
-        language: system
+        language: unsupported
         files: ^(.*.sh)$
 
   - repo: local
@@ -67,7 +67,7 @@ repos:
       - id: pythoncapi
         name: upgrade pythoncapi
         entry: ci/pythoncapi.sh
-        language: system
+        language: unsupported
         files: ^(
           src/msilib/include/pythoncapi_compat.h|
           src/msilib/include/.*.h|src/msilib/.*.c)$
