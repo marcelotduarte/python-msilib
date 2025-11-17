@@ -43,7 +43,7 @@ name = " Martin v. Löwis"
 [project.optional-dependencies]
 dev = [
     "bump-my-version==1.2.4",
-    "cibuildwheel==3.2.1",
+    "cibuildwheel==3.3.0",
     "pre-commit==4.4.0",
 ]
 tests = [
