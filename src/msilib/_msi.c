@@ -260,7 +260,7 @@ static PyObject* _msi_FCICreate_impl(
     }
 
     ccab.cb = INT_MAX; /* no need to split CAB into multiple media */
-    ccab.cbFolderThresh = 1000000; /* flush directory after this many bytes */
+    ccab.cbFolderThresh = 10000000; /* flush directory after this many bytes */
     ccab.cbReserveCFData = 0;
     ccab.cbReserveCFFolder = 0;
     ccab.cbReserveCFHeader = 0;
@@ -310,7 +310,7 @@ static PyObject* _msi_FCICreate_impl(
         }
 
         if (!FCIAddFile(hfci, filename, cabname, FALSE, cb_getnextcabinet,
-                cb_status, cb_getopeninfo, tcompTYPE_MSZIP))
+                cb_status, cb_getopeninfo, TCOMPfromLZXWindow(21)))
             goto err;
     }
 
