@@ -70,7 +70,7 @@ jobs:
           egress-policy: audit
 
       - name: Fetch only the required files for testing
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           sparse-checkout: |
             pyproject.toml
@@ -124,7 +124,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
 
       - name: Download coverage data
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -134,7 +134,7 @@ jobs:
 
       - name: Coverage comment
         id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@39ffc771120970de615612f01a030260bcb45443 # v3
+        uses: py-cov-action/python-coverage-comment-action@e623398c19eb3853a5572d4a516e10b15b5cefbc # v3.39
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_COVERAGE_FILES: true
