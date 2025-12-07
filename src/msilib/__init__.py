@@ -56,7 +56,7 @@ from msilib._msi import (
     UuidCreate,
 )
 
-__version__ = "0.4.3"
+__version__ = "0.5.0"
 
 __all__ = [
     "CAB",
