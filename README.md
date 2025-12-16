@@ -8,7 +8,7 @@
 | src/msilib/schema.py       |      495 |        0 |    100.00% |           |
 | src/msilib/sequence.py     |        6 |        6 |      0.00% |     6-131 |
 | src/msilib/text.py         |        5 |        5 |      0.00% |     5-296 |
-|                  **TOTAL** |  **853** |  **155** | **81.83%** |           |
+| **TOTAL**                  |  **853** |  **155** | **81.83%** |           |
 
 
 ## Setup coverage badge
