@@ -2,9 +2,16 @@
 preserve
 [clinic start generated code]*/
 
-// Add _PyArg_NoPositional and _PyArg_BadArgument
+// Add _PyArg_NoPositional and _PyArg_BadArgument (Python 3.13.0b2+)
 #define Py_BUILD_CORE
+#if PY_VERSION_HEX >= 0x030D00B2
 #include <internal/pycore_modsupport.h>
+#endif
+
+// Compatible _PyCFunction_CAST (Python 3.10)
+#ifndef _PyCFunction_CAST
+#define _PyCFunction_CAST(func) ((PyCFunctionObject*)func)
+#endif
 
 #define _MSI_SENTINEL { NULL, NULL }
 
