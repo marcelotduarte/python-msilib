@@ -2,7 +2,7 @@
 requires = [
     # setuptools 77.0.3+ supports PEP 639
     # setuptools 78.1.1 fix path traversal vulnerability
-    "setuptools>=78.1.1,<=80.9.0",
+    "setuptools>=78.1.1,<81",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -44,11 +44,11 @@ email = "loewis@users.noreply.github.com"
 [project.optional-dependencies]
 dev = [
     "bump-my-version==1.2.6",
-    "cibuildwheel==3.3.0",
+    "cibuildwheel==3.3.1",
     "pre-commit==4.5.1",
 ]
 tests = [
-    "coverage==7.13.1",
+    "coverage==7.13.2",
     "pytest==9.0.2",
 ]
 
@@ -225,12 +225,13 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/msilib/__init__.py" = [
-    "S101",     # Use of `assert` detected
-    "S608",
     "A002",
+    "A005",
     "ANN201",
     "ERA001",
     "PLW0603", # global
+    "S101",     # Use of `assert` detected
+    "S608",
 ]
 "src/msilib/schema.py" = [
     "E501",     # Line too long
