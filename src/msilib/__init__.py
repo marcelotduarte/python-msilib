@@ -4,6 +4,7 @@
 # Licensed to PSF under a Contributor Agreement.
 import contextlib
 import fnmatch
+import importlib.metadata
 import os
 import platform
 import re
@@ -56,7 +57,7 @@ from msilib._msi import (
     UuidCreate,
 )
 
-__version__ = "0.5.0"
+__version__ = importlib.metadata.version(__package__)
 
 __all__ = [
     "CAB",
