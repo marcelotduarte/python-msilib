@@ -10,12 +10,8 @@ else
 fi
 
 IS_CONDA=$([ -n "$CONDA_EXE" ] && echo "1")
-IS_LINUX=$([[ $PY_PLATFORM == linux* ]] && echo "1")
 IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo "1")
 IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
-
-# For Linux
-PYTHON_FOR_DEV="3.12"
 
 # Usage
 if [ -n "$1" ] && [ "$1" == "--help" ]; then
@@ -43,6 +39,8 @@ done
 echo "::group::Install dependencies and build tools"
 # Install/update uv and dev tools
 if [ "$IS_CONDA" == "1" ]; then
+    # Conda Python 3.14: python-msilib is not available yet
+    PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
     SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
     # Packages to install
     pkgs=("uv" "python-build")
@@ -55,6 +53,9 @@ if [ "$IS_CONDA" == "1" ]; then
                 name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
                 if [ "$name" == "cx-logging" ]; then name="cx_logging"; fi
                 if [ "$name" == "lief" ]; then name="py-lief"; fi
+                if [ "$name" == "python-msilib" ] && [ "$PY_VERSION" == "3.14" ]; then
+                    continue
+                fi
                 if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
                     pkgs+=("$name")
                 fi
@@ -89,6 +90,7 @@ elif [ "$IS_MINGW" == "1" ]; then
             if [[ $line != *sys_platform* ]] || \
                [[ $line == *sys_platform*==*win32* ]]; then
                 name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                if [ "$name" == "python-msilib" ]; then name="msilib"; fi
                 if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
                     pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
                 fi
@@ -124,34 +126,66 @@ else
         fi
     fi
 
-    # Dependencies of the project
-    echo "Install packages"
-    if [ "$INSTALL_TESTS" == "1" ]; then
-        # including pytest and dependencies
-        uv pip install --extra tests --upgrade -r pyproject.toml
+    # Lief is not available for Python 3.13t and 3.14t
+    PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
+    PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
+    PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
+    if [ "$IS_WINDOWS" == "1" ] && \
+       { [ "$PY_VER_ABI" == "3.13t" ] || [ "$PY_VER_ABI" == "3.14t" ]; }; then
+        # Packages to install
+        pkgs=()
+
+        # Dependencies of the project
+        if [ -f requirements.txt ]; then
+            while read -r line; do
+                if [[ $line != *sys_platform* ]] || \
+                   [[ $line == *sys_platform*==*win32* ]]; then
+                    name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                    if [ "$name" == "lief" ]; then continue; fi
+                    if [ "$name" == "tomli" ]; then continue; fi
+                    name_and_version=$(echo "$line" | awk '{ print $1 }')
+                    pkgs+=("$name_and_version")
+                fi
+            done < requirements.txt
+        fi
+
+        # pytest and dependencies
+        if [ "$INSTALL_TESTS" == "1" ] && [ -f tests/requirements.txt ]; then
+            while read -r line; do
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                pkgs+=("$name")
+            done < tests/requirements.txt
+        fi
+
+        echo "Install packages"
+        uv pip install --upgrade "${pkgs[@]}"
+
     else
-        uv pip install --upgrade -r pyproject.toml
+        # Dependencies of the project
+        echo "Install packages"
+        if [ "$INSTALL_TESTS" == "1" ]; then
+            # including pytest and dependencies
+            uv pip install --upgrade -r pyproject.toml --group tests
+        else
+            uv pip install --upgrade -r pyproject.toml
+        fi
     fi
 fi
 
 # Install dev tools
 if [ "$INSTALL_DEV" == "1" ]; then
-    if [ "$IS_LINUX" == "1" ] || [ "$IS_MINGW" == "1" ] || \
-       [ "$IS_CONDA" == "1" ]; then
-        if [ -f requirements-dev.txt ]; then
-            while read -r line; do
-                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                filename=$INSTALL_DIR/$name
-                echo "Create $filename"
-                echo "#!/bin/bash"> "$filename"
-                echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> "$filename"
-                chmod +x "$filename"
-            done < requirements-dev.txt
-        fi
-    else
-        # macOS and Windows
-        uv pip install --extra dev --upgrade -r pyproject.toml
-        uv pip install --upgrade build
+    if [ -f requirements-dev.txt ]; then
+        PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
+        PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
+        PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
+        while read -r line; do
+            name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+            filename=$INSTALL_DIR/$name
+            echo "Create $filename"
+            echo "#!/bin/bash"> "$filename"
+            echo "uvx -p $PY_VER_ABI \"$line\" \$@">> "$filename"
+            chmod +x "$filename"
+        done < requirements-dev.txt
     fi
 fi
 echo "::endgroup::"

@@ -30,7 +30,7 @@ repos:
           - validate-pyproject-schema-store[all]>=2025.11.14
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.0
+    rev: v0.15.1
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes", "--unsafe-fixes"]
@@ -71,3 +71,13 @@ repos:
         files: ^(
           src/msilib/include/pythoncapi_compat.h|
           src/msilib/include/.*.h|src/msilib/.*.c)$
+
+  - repo: local
+    hooks:
+      - id: requirements
+        name: requirements
+        language: system
+        entry: python ci/requirements.py
+        files: ^(pyproject.toml|requirements.txt|requirements-dev.txt|
+          tests/requirements.txt
+          )$
