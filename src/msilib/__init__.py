@@ -57,7 +57,7 @@ from msilib._msi import (
     UuidCreate,
 )
 
-__version__ = importlib.metadata.version(__package__)
+__version__ = importlib.metadata.version("python-msilib")
 
 __all__ = [
     "CAB",
