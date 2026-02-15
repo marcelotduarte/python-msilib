@@ -12,6 +12,7 @@ cx_Freeze's `bdist_msi` command to continue working in Python 3.13+.
 [![Python](https://img.shields.io/pypi/pyversions/python-msilib)](https://www.python.org/)
 [![Coverage](https://raw.githubusercontent.com/marcelotduarte/python-msilib/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/marcelotduarte/python-msilib/blob/python-coverage-comment-action-data/htmlcov/index.html)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
 
 ## Installation
 
