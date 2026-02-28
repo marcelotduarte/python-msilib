@@ -47,7 +47,7 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 [dependency-groups]
 dev = [
     "cibuildwheel==3.3.1",
-    "prek==0.3.3",
+    "prek==0.3.4",
 ]
 tests = [
     "coverage==7.13.4",
