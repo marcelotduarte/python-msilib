@@ -47,11 +47,11 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 [dependency-groups]
 dev = [
     "cibuildwheel==3.3.1",
-    "prek==0.3.4",
+    "prek==0.3.6",
 ]
 tests = [
-    "coverage==7.13.4",
-    "pytest==9.0.2",
+    "coverage~=7.13.0",
+    "pytest~=9.0.0",
 ]
 
 [tool.setuptools]
