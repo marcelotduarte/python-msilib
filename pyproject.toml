@@ -46,12 +46,12 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 
 [dependency-groups]
 dev = [
-    "cibuildwheel==3.4.0",
-    "prek==0.3.6",
+    "cibuildwheel>=3.4.1",
+    "prek>=0.3.8,<0.4.0",
 ]
 tests = [
-    "coverage~=7.13.0",
-    "pytest~=9.0.0",
+    "coverage>=7.13.0",
+    "pytest>=9.0.2",
 ]
 
 [tool.setuptools]
@@ -75,7 +75,6 @@ where = ["src"]
 [tool.cibuildwheel]
 build-frontend = "build[uv]"
 build-verbosity = 1
-enable = ["cpython-freethreading"]
 
 [tool.coverage.html]
 directory = "build/coverage_html_report"
