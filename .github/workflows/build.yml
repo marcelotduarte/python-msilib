@@ -34,19 +34,19 @@ jobs:
                   "os": "windows",
                   "os-version": "latest",
                   "arch": "x86_64",
-                  "tag": "cp3{13,13t,14,14t}-win_amd64",
+                  "tag": "cp3{13,14,14t}-win_amd64",
               },
               {
                   "os": "windows",
                   "os-version": "11-arm",
                   "arch": "arm64",
-                  "tag": "cp3{13,13t,14,14t}-win_arm64",
+                  "tag": "cp3{13,14,14t}-win_arm64",
               },
               {
                   "os": "windows",
                   "os-version": "latest",
                   "arch": "x86",
-                  "tag": "cp3{13,13t,14,14t}-win32",
+                  "tag": "cp3{13,14,14t}-win32",
               },
             ]
           with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
@@ -68,7 +68,7 @@ jobs:
       run:
         shell: bash
     env:
-      UV_SYSTEM_PYTHON: true
+      UV_NO_PROGRESS: true
     permissions:
       contents: read
     steps:
@@ -88,8 +88,9 @@ jobs:
 
       - uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
-          enable-cache: true
+          activate-environment: true
           cache-dependency-glob: "pyproject.toml"
+          enable-cache: true
 
       - name: Bump new dev version
         if: github.event_name != 'release'

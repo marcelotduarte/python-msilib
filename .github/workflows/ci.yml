@@ -57,10 +57,8 @@ jobs:
       matrix:
         os: [windows]
         os-version: [latest, 11-arm]
-        python-version: ["3.13", "3.13t", "3.14", "3.14t"]
+        python-version: ["3.13", "3.14", "3.14t"]
         exclude: # provisional
-          - os-version: 11-arm
-            python-version: "3.13t"
           - os-version: 11-arm
             python-version: "3.14t"
 
