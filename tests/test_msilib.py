@@ -1,9 +1,12 @@
 """Test suite for the code in msilib."""
 
+import os
+
 import pytest
 
 msilib = pytest.importorskip("msilib", reason="Windows tests")
 schema = pytest.importorskip("msilib.schema", reason="Windows tests")
+sequence = pytest.importorskip("msilib.sequence", reason="Windows tests")
 
 
 @pytest.fixture
@@ -90,6 +93,47 @@ def test_directory_start_component_keyfile(db, tmp_path) -> None:
             db, cab, None, tmp_path, "TARGETDIR", "SourceDir", 0
         )
         directory.start_component(None, feature, None, "keyfile")
+    finally:
+        msilib._directories.clear()  # noqa: SLF001
+
+
+def test_large_package(db, tmp_path) -> None:
+    root_dir = tmp_path / "root"
+    root_dir.mkdir()
+    data_dir = root_dir / "data"
+    data_dir.mkdir()
+    for i in range(33000):
+        file = data_dir / f"{i:05}.dat"
+        file.write_text(f"data {i}")
+    msilib.add_tables(db, sequence)
+    try:
+        cab = msilib.CAB("distfiles")
+        feature = msilib.Feature(
+            db,
+            "default",
+            "Default Feature",
+            "Everything",
+            1,
+            directory="TARGETDIR",
+        )
+        feature.set_current()
+        root = msilib.Directory(
+            db, cab, None, root_dir, "TARGETDIR", "SourceDir"
+        )
+        db.Commit()
+        todo = [root]
+        while todo:
+            directory = todo.pop()
+            for file in os.listdir(directory.absolute):
+                if os.path.isdir(os.path.join(directory.absolute, file)):
+                    sfile = directory.make_short(file)
+                    new_dir = msilib.Directory(
+                        db, cab, directory, file, file, f"{sfile}|{file}"
+                    )
+                    todo.append(new_dir)
+                else:
+                    directory.add_file(file)
+        cab.commit(db)
     finally:
         msilib._directories.clear()  # noqa: SLF001
 

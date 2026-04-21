@@ -107,7 +107,7 @@ File.add_field(4, "FileSize", 260)
 File.add_field(5, "Version", 7496)
 File.add_field(6, "Language", 7444)
 File.add_field(7, "Attributes", 5378)
-File.add_field(8, "Sequence", 1282)
+File.add_field(8, "Sequence", 260)  # 1282
 
 CCPSearch = Table("CCPSearch")
 CCPSearch.add_field(1, "Signature_", 11592)
@@ -337,7 +337,7 @@ LockPermissions.add_field(5, "Permission", 4356)
 
 Media = Table("Media")
 Media.add_field(1, "DiskId", 9474)
-Media.add_field(2, "LastSequence", 1282)
+Media.add_field(2, "LastSequence", 260)  # 1282
 Media.add_field(3, "DiskPrompt", 8000)
 Media.add_field(4, "Cabinet", 7679)
 Media.add_field(5, "VolumeLabel", 7456)
@@ -419,7 +419,7 @@ ODBCTranslator.add_field(5, "File_Setup", 7496)
 
 Patch = Table("Patch")
 Patch.add_field(1, "File_", 11592)
-Patch.add_field(2, "Sequence", 9474)
+Patch.add_field(2, "Sequence", 8452)  # 9474
 Patch.add_field(3, "PatchSize", 260)
 Patch.add_field(4, "Attributes", 1282)
 Patch.add_field(5, "Header", 6400)
