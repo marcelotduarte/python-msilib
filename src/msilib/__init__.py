@@ -204,6 +204,7 @@ class Table:
             if ftype & type_key:
                 keys.append(f"`{name}`")
         fields = ", ".join(fields)
+        print(self.name, fields)
         keys = ", ".join(keys)
         return f"CREATE TABLE {self.name} ({fields} PRIMARY KEY {keys})"
 
