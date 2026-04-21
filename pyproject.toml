@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "python-msilib"
-version = "0.5.1.dev0"
+version = "0.5.2"
 description = "Read and write Microsoft Installer files"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
