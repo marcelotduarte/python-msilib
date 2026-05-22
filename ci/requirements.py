@@ -4,12 +4,8 @@ from __future__ import annotations
 
 import contextlib
 import sys
+import tomllib
 from pathlib import Path
-
-try:
-    from tomllib import load as toml_load
-except ImportError:
-    from tomli import load as toml_load
 
 
 def main() -> None:
@@ -19,7 +15,7 @@ def main() -> None:
         print("pyproject.toml not found", file=sys.stderr)
         sys.exit(1)
     with pyproject_toml.open("rb") as file:
-        config = toml_load(file)
+        config = tomllib.load(file)
 
     root_dir = pyproject_toml.parent
     requirements = root_dir / "requirements.txt"

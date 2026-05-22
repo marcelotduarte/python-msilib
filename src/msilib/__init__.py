@@ -2,14 +2,17 @@
 
 # Copyright (C) 2005 Martin v. Löwis
 # Licensed to PSF under a Contributor Agreement.
+from __future__ import annotations
+
 import contextlib
 import fnmatch
-import importlib.metadata
 import os
 import platform
 import re
 import string
+from importlib import metadata
 from tempfile import mkstemp
+from typing import TYPE_CHECKING, Any, Final
 
 from msilib._msi import (
     MSICOLINFO_NAMES,
@@ -57,7 +60,13 @@ from msilib._msi import (
     UuidCreate,
 )
 
-__version__ = importlib.metadata.version("python-msilib")
+if TYPE_CHECKING:
+    from collections.abc import Container, Iterable, Sequence
+    from types import ModuleType
+
+    from ._msi import _Database
+
+__version__ = metadata.version("python-msilib")
 
 __all__ = [
     "CAB",
@@ -133,27 +142,27 @@ __all__ = [
 
 
 # Should work in windows, but also in mingw, cygwin, ...
-AMD64 = platform.machine() in ("x64", "x86_64", "AMD64")
-ARM64 = platform.machine() in ("aarch64", "arm64", "ARM64")
+AMD64: Final[bool] = platform.machine() in ("x64", "x86_64", "AMD64")
+ARM64: Final[bool] = platform.machine() in ("aarch64", "arm64", "ARM64")
 
 # Keep msilib.Win64 around to preserve backwards compatibility.
-Win64 = AMD64
+Win64: Final[bool] = AMD64
 
 # Partially taken from Wine
-datasizemask = 0x00FF
-type_valid = 0x0100
-type_localizable = 0x0200
+datasizemask: Final = 0x00FF
+type_valid: Final = 0x0100
+type_localizable: Final = 0x0200
 
-typemask = 0x0C00
-type_long = 0x0000
-type_short = 0x0400
-type_string = 0x0C00
-type_binary = 0x0800
+typemask: Final = 0x0C00
+type_long: Final = 0x0000
+type_short: Final = 0x0400
+type_string: Final = 0x0C00
+type_binary: Final = 0x0800
 
-type_nullable = 0x1000
-type_key = 0x2000
+type_nullable: Final = 0x1000
+type_key: Final = 0x2000
 # XXX temporary, localizable?
-knownbits = (
+knownbits: Final = (
     datasizemask
     | type_valid
     | type_localizable
@@ -164,11 +173,14 @@ knownbits = (
 
 
 class Table:
-    def __init__(self, name) -> None:
+    name: str
+    fields: list[tuple[int, str, int]]
+
+    def __init__(self, name: str) -> None:
         self.name = name
         self.fields = []
 
-    def add_field(self, index, name, type) -> None:
+    def add_field(self, index: int, name: str, type: int) -> None:
         self.fields.append((index, name, type))
 
     def sql(self) -> str:
@@ -207,7 +219,7 @@ class Table:
         keys = ", ".join(keys)
         return f"CREATE TABLE {self.name} ({fields} PRIMARY KEY {keys})"
 
-    def create(self, db) -> None:
+    def create(self, db: _Database) -> None:
         v = db.OpenView(self.sql())
         v.Execute(None)
         v.Close()
@@ -218,7 +230,10 @@ class _Unspecified:
 
 
 def change_sequence(
-    seq, action, seqno=_Unspecified, cond=_Unspecified
+    seq: Sequence[tuple[str, str | None, int]],
+    action: str,
+    seqno: int | type[_Unspecified] = _Unspecified,
+    cond: str | type[_Unspecified] = _Unspecified,
 ) -> None:
     """Change the sequence number of an action in a sequence list."""
     for i in range(len(seq)):
@@ -233,8 +248,11 @@ def change_sequence(
     raise ValueError(msg)
 
 
-def add_data(db, table, values) -> None:
-    v = db.OpenView(f"SELECT * FROM `{table}`")
+def add_data(
+    db: _Database, table: str, values: Iterable[tuple[Any, ...]]
+) -> None:
+    sql = "SELECT * FROM `{table}`"
+    v = db.OpenView(sql.format(table=table))
     count = v.GetColumnInfo(MSICOLINFO_NAMES).GetFieldCount()
     r = CreateRecord(count)
     for value in values:
@@ -262,8 +280,9 @@ def add_data(db, table, values) -> None:
     v.Close()
 
 
-def add_stream(db, name, path) -> None:
-    v = db.OpenView(f"INSERT INTO _Streams (Name, Data) VALUES ('{name}', ?)")
+def add_stream(db: _Database, name: str, path: str) -> None:
+    sql = "INSERT INTO _Streams (Name, Data) VALUES ('{name}', ?)"
+    v = db.OpenView(sql.format(name=name))
     r = CreateRecord(1)
     r.SetStream(1, path)
     v.Execute(r)
@@ -271,8 +290,13 @@ def add_stream(db, name, path) -> None:
 
 
 def init_database(
-    name, schema, ProductName, ProductCode, ProductVersion, Manufacturer
-):
+    name: str,
+    schema: ModuleType,
+    ProductName: str,
+    ProductCode: str,
+    ProductVersion: str,
+    Manufacturer: str,
+) -> _Database:
     with contextlib.suppress(OSError):
         os.unlink(name)
     ProductCode = ProductCode.upper()
@@ -323,7 +347,7 @@ def init_database(
     return db
 
 
-def add_tables(db, module) -> None:
+def add_tables(db: _Database, module: ModuleType) -> None:
     for table in module.tables:
         add_data(db, table, getattr(module, table))
 
@@ -342,13 +366,18 @@ def gen_uuid() -> str:
 
 
 class CAB:
-    def __init__(self, name) -> None:
+    name: str
+    files: list[tuple[str, str]]
+    filenames: set[str]
+    index: int
+
+    def __init__(self, name: str) -> None:
         self.name = name
         self.files = []
         self.filenames = set()
         self.index = 0
 
-    def gen_id(self, file) -> str:
+    def gen_id(self, file: str) -> str:
         logical = _logical = make_id(file)
         pos = 1
         while logical in self.filenames:
@@ -357,7 +386,9 @@ class CAB:
         self.filenames.add(logical)
         return logical
 
-    def append(self, full, file, logical) -> tuple[int, str]:
+    def append(
+        self, full: str, file: str, logical: str
+    ) -> tuple[int, str] | None:
         if os.path.isdir(full):
             return None
         if not logical:
@@ -366,7 +397,7 @@ class CAB:
         self.files.append((full, logical))
         return self.index, logical
 
-    def commit(self, db) -> None:
+    def commit(self, db: _Database) -> None:
         fd, filename = mkstemp()
         os.close(fd)
         FCICreate(filename, self.files)
@@ -378,19 +409,31 @@ class CAB:
         db.Commit()
 
 
-_directories = set()
+_directories: set[str] = set()
 
 
 class Directory:
+    db: _Database
+    cab: CAB
+    basedir: str
+    physical: str
+    logical: str
+    component: str | None
+    short_names: set[str]
+    ids: set[str]
+    keyfiles: dict[str, str]
+    componentflags: int | None
+    absolute: str
+
     def __init__(
         self,
-        db,
-        cab,
-        basedir,
-        physical,
-        _logical,
-        default,
-        componentflags=None,
+        db: _Database,
+        cab: CAB,
+        basedir: str,
+        physical: str,
+        _logical: str,
+        default: str,
+        componentflags: int | None = None,
     ) -> None:
         """Create a new directory in the Directory table. There is a current
         component at each point in time for the directory, which is either
@@ -428,7 +471,12 @@ class Directory:
         add_data(db, "Directory", [(logical, blogical, default)])
 
     def start_component(
-        self, component=None, feature=None, flags=None, keyfile=None, uuid=None
+        self,
+        component: str | None = None,
+        feature: Feature | None = None,
+        flags: int | None = None,
+        keyfile: str | None = None,
+        uuid: str | None = None,
     ) -> None:
         """Add an entry to the Component table, and make this component the
         current for this directory. If no component name is given, the
@@ -586,7 +634,9 @@ class Directory:
             )
         return logical
 
-    def glob(self, pattern: str, exclude=None) -> list[str]:
+    def glob(
+        self, pattern: str, exclude: Container[str] | None = None
+    ) -> list[str]:
         """Add a list of files to the current component as specified in the
         glob pattern. Individual files can be excluded in the exclude list.
         """
@@ -613,25 +663,32 @@ class Directory:
 
 
 class Binary:
-    def __init__(self, fname) -> None:
+    name: str
+
+    def __init__(self, fname: str) -> None:
         self.name = fname
 
     def __repr__(self) -> str:
         return f'msilib.Binary(os.path.join(dirname,"{self.name}"))'
 
 
+current_feature: Feature
+
+
 class Feature:
+    id: str
+
     def __init__(
         self,
-        db,
-        id,
-        title,
-        desc,
-        display,
-        level=1,
-        parent=None,
-        directory=None,
-        attributes=0,
+        db: _Database,
+        id: str,
+        title: str,
+        desc: str,
+        display: int,
+        level: int = 1,
+        parent: Feature | None = None,
+        directory: str | None = None,
+        attributes: int = 0,
     ) -> None:
         self.id = id
         if parent:
@@ -643,30 +700,39 @@ class Feature:
         )
 
     def set_current(self) -> None:
-        global current_feature
+        global current_feature  # noqa: PLW0603
         current_feature = self
 
 
 class Control:
-    def __init__(self, dlg, name) -> None:
+    dlg: Dialog
+    name: str
+
+    def __init__(self, dlg: Dialog, name: str) -> None:
         self.dlg = dlg
         self.name = name
 
-    def event(self, event, argument, condition="1", ordering=None) -> None:
+    def event(
+        self,
+        event: str,
+        argument: str,
+        condition: str = "1",
+        ordering: int | None = None,
+    ) -> None:
         add_data(
             self.dlg.db,
             "ControlEvent",
             [(self.dlg.name, self.name, event, argument, condition, ordering)],
         )
 
-    def mapping(self, event, attribute) -> None:
+    def mapping(self, event: str, attribute: str) -> None:
         add_data(
             self.dlg.db,
             "EventMapping",
             [(self.dlg.name, self.name, event, attribute)],
         )
 
-    def condition(self, action, condition) -> None:
+    def condition(self, action: str, condition: str) -> None:
         add_data(
             self.dlg.db,
             "ControlCondition",
@@ -675,13 +741,25 @@ class Control:
 
 
 class RadioButtonGroup(Control):
-    def __init__(self, dlg, name, property) -> None:
+    property: str
+    index: int
+
+    def __init__(self, dlg: Dialog, name: str, property: str) -> None:
         self.dlg = dlg
         self.name = name
         self.property = property
         self.index = 1
 
-    def add(self, name, x, y, w, h, text, value=None) -> None:
+    def add(
+        self,
+        name: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        text: str,
+        value: str | None = None,
+    ) -> None:
         if value is None:
             value = name
         add_data(
@@ -693,8 +771,26 @@ class RadioButtonGroup(Control):
 
 
 class Dialog:
+    db: _Database
+    name: str
+    x: int
+    y: int
+    w: int
+    h: int
+
     def __init__(
-        self, db, name, x, y, w, h, attr, title, first, default, cancel
+        self,
+        db: _Database,
+        name: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        attr: int,
+        title: str,
+        first: str,
+        default: str,
+        cancel: str,
     ) -> None:
         self.db = db
         self.name = name
@@ -706,7 +802,18 @@ class Dialog:
         )
 
     def control(
-        self, name, type, x, y, w, h, attr, prop, text, next, help
+        self,
+        name: str,
+        type: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        attr: int,
+        prop: str | None,
+        text: str | None,
+        next: str | None,
+        help: str | None,
     ) -> Control:
         add_data(
             self.db,
@@ -730,27 +837,59 @@ class Dialog:
         )
         return Control(self, name)
 
-    def text(self, name, x, y, w, h, attr, text) -> Control:
+    def text(
+        self,
+        name: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        attr: int,
+        text: str | None,
+    ) -> Control:
         return self.control(
             name, "Text", x, y, w, h, attr, None, text, None, None
         )
 
-    def bitmap(self, name, x, y, w, h, text) -> Control:
+    def bitmap(
+        self, name: str, x: int, y: int, w: int, h: int, text: str | None
+    ) -> Control:
         return self.control(
             name, "Bitmap", x, y, w, h, 1, None, text, None, None
         )
 
-    def line(self, name, x, y, w, h) -> Control:
+    def line(self, name: str, x: int, y: int, w: int, h: int) -> Control:
         return self.control(
             name, "Line", x, y, w, h, 1, None, None, None, None
         )
 
-    def pushbutton(self, name, x, y, w, h, attr, text, next) -> Control:
+    def pushbutton(
+        self,
+        name: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        attr: int,
+        text: str | None,
+        next: str | None,
+    ) -> Control:
         return self.control(
             name, "PushButton", x, y, w, h, attr, None, text, next, None
         )
 
-    def radiogroup(self, name, x, y, w, h, attr, prop, text, next) -> Control:
+    def radiogroup(
+        self,
+        name: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        attr: int,
+        prop: str | None,
+        text: str | None,
+        next: str | None,
+    ) -> Control:
         add_data(
             self.db,
             "Control",
@@ -773,7 +912,18 @@ class Dialog:
         )
         return RadioButtonGroup(self, name, prop)
 
-    def checkbox(self, name, x, y, w, h, attr, prop, text, next) -> Control:
+    def checkbox(
+        self,
+        name: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        attr: int,
+        prop: str | None,
+        text: str | None,
+        next: str | None,
+    ) -> Control:
         return self.control(
             name, "CheckBox", x, y, w, h, attr, prop, text, next, None
         )
