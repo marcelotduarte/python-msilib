@@ -47,7 +47,7 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 [dependency-groups]
 dev = [
     "cibuildwheel>=3.4.1",
-    "prek>=0.3.8,<0.4.0",
+    "prek>=0.4.0,<0.5.0",
 ]
 tests = [
     "coverage>=7.13.0",
@@ -123,7 +123,10 @@ line-length = 79
 [tool.ruff.lint]
 select = [
     "A",    # flake8-builtins
-    "ANN2", # flake8-annotations - missing return type
+    "ANN001",  # flake8-annotations - missing-type-function-argument
+    "ANN002",  # flake8-annotations - missing-type-args
+    "ANN201",  # flake8-annotations - missing-return-type-undocumented-public-function
+    "ANN202",  # flake8-annotations - missing-return-type-private-function
     "ARG",  # flake8-unused-arguments
     "B",    # flake8-bugbear
     "BLE",  # flake8-blind-except
@@ -185,12 +188,8 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "src/msilib/__init__.py" = [
     "A002",
-    "A005",
-    "ANN201",
     "ERA001",
-    "PLW0603", # global
     "S101",     # Use of `assert` detected
-    "S608",
 ]
 "src/msilib/schema.py" = [
     "E501",     # Line too long
@@ -200,7 +199,6 @@ ignore = [
 ]
 "tests/*" = [
     "S101",     # Use of `assert` detected
-    "ANN201",
 ]
 
 [tool.ruff.lint.flake8-builtins]

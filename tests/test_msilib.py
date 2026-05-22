@@ -1,8 +1,17 @@
 """Test suite for the code in msilib."""
 
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+    from pathlib import Path
+
+    from msilib._msi import _Database
 
 msilib = pytest.importorskip("msilib", reason="Windows tests")
 schema = pytest.importorskip("msilib.schema", reason="Windows tests")
@@ -10,7 +19,7 @@ sequence = pytest.importorskip("msilib.sequence", reason="Windows tests")
 
 
 @pytest.fixture
-def db(tmp_path):
+def db(tmp_path: Path) -> Generator[_Database]:
     path = tmp_path / "test.msi"
     db = msilib.init_database(
         path.as_posix(), schema, "Python Tests", "product_code", "1.0", "PSF"
@@ -19,7 +28,7 @@ def db(tmp_path):
     db.Close()
 
 
-def test_view_fetch_returns_none(db) -> None:
+def test_view_fetch_returns_none(db: _Database) -> None:
     properties = []
     view = db.OpenView("SELECT Property, Value FROM Property")
     view.Execute(None)
@@ -38,7 +47,7 @@ def test_view_fetch_returns_none(db) -> None:
     ]
 
 
-def test_view_non_ascii(db) -> None:
+def test_view_non_ascii(db: _Database) -> None:
     view = db.OpenView("SELECT 'ß-розпад' FROM Property")
     view.Execute(None)
     record = view.Fetch()
@@ -46,7 +55,7 @@ def test_view_non_ascii(db) -> None:
     view.Close()
 
 
-def test_summaryinfo_getproperty_issue1104(db) -> None:
+def test_summaryinfo_getproperty_issue1104(db: _Database) -> None:
     try:
         sum_info = db.GetSummaryInformation(99)
         title = sum_info.GetProperty(msilib.PID_TITLE)
@@ -74,18 +83,20 @@ def test_database_open_failed() -> None:
     assert exc.match("open failed")
 
 
-def test_database_create_failed(tmp_path) -> None:
+def test_database_create_failed(tmp_path: Path) -> None:
     with pytest.raises(msilib.MSIError) as exc:
         msilib.OpenDatabase(tmp_path.as_posix(), msilib.MSIDBOPEN_CREATE)
     assert exc.match("create failed")
 
 
-def test_get_property_vt_empty(db) -> None:
+def test_get_property_vt_empty(db: _Database) -> None:
     summary = db.GetSummaryInformation(0)
     assert summary.GetProperty(msilib.PID_SECURITY) is None
 
 
-def test_directory_start_component_keyfile(db, tmp_path) -> None:
+def test_directory_start_component_keyfile(
+    db: _Database, tmp_path: Path
+) -> None:
     try:
         feature = msilib.Feature(db, 0, "Feature", "A feature", "Python")
         cab = msilib.CAB("CAB")
@@ -97,7 +108,7 @@ def test_directory_start_component_keyfile(db, tmp_path) -> None:
         msilib._directories.clear()  # noqa: SLF001
 
 
-def test_large_package(db, tmp_path) -> None:
+def test_large_package(db: _Database, tmp_path: Path) -> None:
     root_dir = tmp_path / "root"
     root_dir.mkdir()
     data_dir = root_dir / "data"
@@ -138,13 +149,13 @@ def test_large_package(db, tmp_path) -> None:
         msilib._directories.clear()  # noqa: SLF001
 
 
-def test_getproperty_uninitialized_var(db) -> None:
+def test_getproperty_uninitialized_var(db: _Database) -> None:
     si = db.GetSummaryInformation(0)
     with pytest.raises(msilib.MSIError):
         si.GetProperty(-1)
 
 
-def test_FCICreate(tmp_path) -> None:
+def test_FCICreate(tmp_path: Path) -> None:
     filepath = tmp_path / "test.txt"
     cabpath = tmp_path / "test.cab"
     filepath.touch()
