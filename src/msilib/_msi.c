@@ -236,7 +236,7 @@ static FNFCIGETOPENINFO(cb_getopeninfo)
 _msi.FCICreate
     cabname: str
         the name of the CAB file
-    files: object
+    files: list[tuple[str, str]]
         a list of tuples, each containing the name of the file on disk,
         and the name of the file inside the CAB file
     /

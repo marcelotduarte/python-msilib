@@ -61,10 +61,11 @@ from msilib._msi import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Container, Iterable, Sequence
+    from collections.abc import Container, Iterable
     from types import ModuleType
 
     from ._msi import _Database
+    from .sequence import _SequenceType
 
 __version__ = metadata.version("python-msilib")
 
@@ -187,9 +188,9 @@ class Table:
         fields = []
         keys = []
         self.fields.sort()
-        fields = [None] * len(self.fields)
+        # fields: list[str] = [""] * len(self.fields)
         for index, name, ftype in self.fields:
-            idx = index - 1
+            index - 1
             unk = ftype & ~knownbits
             if unk:
                 print(f"{self.name}.{name} unknown bits {unk:x}")
@@ -212,7 +213,8 @@ class Table:
             flags = "" if ftype & type_nullable else " NOT NULL"
             if ftype & type_localizable:
                 flags += " LOCALIZABLE"
-            fields[idx] = f"`{name}` {tname}{flags}"
+            # fields[idx] = f"`{name}` {tname}{flags}"
+            fields.append(f"`{name}` {tname}{flags}")
             if ftype & type_key:
                 keys.append(f"`{name}`")
         fields = ", ".join(fields)
@@ -225,22 +227,18 @@ class Table:
         v.Close()
 
 
-class _Unspecified:
-    pass
-
-
 def change_sequence(
-    seq: Sequence[tuple[str, str | None, int]],
+    seq: _SequenceType,
     action: str,
-    seqno: int | type[_Unspecified] = _Unspecified,
-    cond: str | type[_Unspecified] = _Unspecified,
+    seqno: int | None = None,
+    cond: str | None = None,
 ) -> None:
     """Change the sequence number of an action in a sequence list."""
     for i in range(len(seq)):
         if seq[i][0] == action:
-            if cond is _Unspecified:
+            if cond is None:
                 cond = seq[i][1]
-            if seqno is _Unspecified:
+            if seqno is None:
                 seqno = seq[i][2]
             seq[i] = (action, cond, seqno)
             return
@@ -387,7 +385,7 @@ class CAB:
         return logical
 
     def append(
-        self, full: str, file: str, logical: str
+        self, full: str, file: str, logical: str | None
     ) -> tuple[int, str] | None:
         if os.path.isdir(full):
             return None
@@ -415,7 +413,7 @@ _directories: set[str] = set()
 class Directory:
     db: _Database
     cab: CAB
-    basedir: str
+    basedir: Directory
     physical: str
     logical: str
     component: str | None
@@ -429,7 +427,7 @@ class Directory:
         self,
         db: _Database,
         cab: CAB,
-        basedir: str,
+        basedir: Directory,
         physical: str,
         _logical: str,
         default: str,
@@ -485,7 +483,7 @@ class Directory:
         no keyfile is given, the KeyPath is left null in the Component table.
         """
         if flags is None:
-            flags = self.componentflags
+            flags = self.componentflags or 0
         uuid = gen_uuid() if uuid is None else uuid.upper()
         if component is None:
             component = self.logical
@@ -527,29 +525,29 @@ class Directory:
             and file == oldfile
             and (not suffix or len(suffix) <= 3)
         ):
-            file = f"{prefix}.{suffix}" if suffix else prefix
+            newfile = f"{prefix}.{suffix}" if suffix else prefix
         else:
-            file = None
-        if file is None or file in self.short_names:
+            newfile = None
+        if newfile is None or newfile in self.short_names:
             prefix = prefix[:6]
             if suffix:
                 suffix = suffix[:3]
             pos = 1
             while 1:
                 if suffix:
-                    file = f"{prefix}~{pos}.{suffix}"
+                    newfile = f"{prefix}~{pos}.{suffix}"
                 else:
-                    file = f"{prefix}~{pos}"
-                if file not in self.short_names:
+                    newfile = f"{prefix}~{pos}"
+                if newfile not in self.short_names:
                     break
                 pos += 1
                 assert pos < 10000
                 if pos in (10, 100, 1000):
                     prefix = prefix[:-1]
-        self.short_names.add(file)
+        self.short_names.add(newfile)
         # restrictions on short names
-        assert not re.search(r'[\?|><:/*"+,;=\[\]]', file)
-        return file
+        assert not re.search(r'[\?|><:/*"+,;=\[\]]', newfile)
+        return newfile
 
     def add_file(
         self,
@@ -557,7 +555,7 @@ class Directory:
         src: str | None = None,
         version: str | None = None,
         language: str | None = None,
-    ) -> str:
+    ) -> str | None:
         """Add a file to the current component of the directory, starting a new
         one if there is no current component. By default, the file name in the
         source and the file table will be identical. If the src file is
@@ -575,7 +573,10 @@ class Directory:
         # restrictions on long names
         assert not re.search(r'[\?|><:/*]"', file)
         logical = self.keyfiles.get(file, None)
-        sequence, logical = self.cab.append(absolute, file, logical)
+        ok = self.cab.append(absolute, file, logical)
+        if ok is None:
+            return None
+        sequence, logical = ok
         assert logical not in self.ids
         self.ids.add(logical)
         short = self.make_short(file)
@@ -655,6 +656,8 @@ class Directory:
 
     def remove_pyc(self) -> None:
         """Remove .pyc files on uninstall."""
+        if not self.component:
+            self.component = self.logical
         add_data(
             self.db,
             "RemoveFile",
@@ -691,12 +694,11 @@ class Feature:
         attributes: int = 0,
     ) -> None:
         self.id = id
-        if parent:
-            parent = parent.id
+        pid = parent.id if parent else None
         add_data(
             db,
             "Feature",
-            [(id, parent, title, desc, display, level, directory, attributes)],
+            [(id, pid, title, desc, display, level, directory, attributes)],
         )
 
     def set_current(self) -> None:
@@ -886,7 +888,7 @@ class Dialog:
         w: int,
         h: int,
         attr: int,
-        prop: str | None,
+        prop: str,
         text: str | None,
         next: str | None,
     ) -> Control:
