@@ -73,8 +73,8 @@ def test_summaryinfo_getproperty_issue1104(db: _Database) -> None:
         title = sum_info.GetProperty(msilib.PID_TITLE)
         assert title == b"a" * 1001
     finally:
-        db = None
-        sum_info = None
+        del db
+        del sum_info
 
 
 def test_database_open_failed() -> None:
