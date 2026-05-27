@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_3354a0ce13cdd8f3_schema_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-26 06:49 +0000
+            created at 2026-05-27 04:40 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -495,7 +495,7 @@
     <p class="run"><span class="n"><a id="t413" href="#t413">413</a></span><span class="t"><span class="key">class</span> <span class="nam">Directory</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t414" href="#t414">414</a></span><span class="t">    <span class="nam">db</span><span class="op">:</span> <span class="nam">_Database</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t415" href="#t415">415</a></span><span class="t">    <span class="nam">cab</span><span class="op">:</span> <span class="nam">CAB</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t416" href="#t416">416</a></span><span class="t">    <span class="nam">basedir</span><span class="op">:</span> <span class="nam">Directory</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t416" href="#t416">416</a></span><span class="t">    <span class="nam">basedir</span><span class="op">:</span> <span class="nam">Directory</span> <span class="op">|</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t417" href="#t417">417</a></span><span class="t">    <span class="nam">physical</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t418" href="#t418">418</a></span><span class="t">    <span class="nam">logical</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t419" href="#t419">419</a></span><span class="t">    <span class="nam">component</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
@@ -509,7 +509,7 @@
     <p class="run run2"><span class="n"><a id="t427" href="#t427">427</a></span><span class="t">        <span class="nam">self</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t428" href="#t428">428</a></span><span class="t">        <span class="nam">db</span><span class="op">:</span> <span class="nam">_Database</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t429" href="#t429">429</a></span><span class="t">        <span class="nam">cab</span><span class="op">:</span> <span class="nam">CAB</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t430" href="#t430">430</a></span><span class="t">        <span class="nam">basedir</span><span class="op">:</span> <span class="nam">Directory</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t430" href="#t430">430</a></span><span class="t">        <span class="nam">basedir</span><span class="op">:</span> <span class="nam">Directory</span> <span class="op">|</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t431" href="#t431">431</a></span><span class="t">        <span class="nam">physical</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t432" href="#t432">432</a></span><span class="t">        <span class="nam">_logical</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t433" href="#t433">433</a></span><span class="t">        <span class="nam">default</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -873,8 +873,8 @@
     <p class="run run2"><span class="n"><a id="t791" href="#t791">791</a></span><span class="t">        <span class="nam">attr</span><span class="op">:</span> <span class="nam">int</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t792" href="#t792">792</a></span><span class="t">        <span class="nam">title</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t793" href="#t793">793</a></span><span class="t">        <span class="nam">first</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t794" href="#t794">794</a></span><span class="t">        <span class="nam">default</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t795" href="#t795">795</a></span><span class="t">        <span class="nam">cancel</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t794" href="#t794">794</a></span><span class="t">        <span class="nam">default</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t795" href="#t795">795</a></span><span class="t">        <span class="nam">cancel</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t796" href="#t796">796</a></span><span class="t">    <span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t797" href="#t797">797</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">db</span> <span class="op">=</span> <span class="nam">db</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t798" href="#t798">798</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">name</span> <span class="op">=</span> <span class="nam">name</span>&nbsp;</span><span class="r"></span></p>
@@ -1020,7 +1020,7 @@
             <a class="nav" href="z_3354a0ce13cdd8f3_schema_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-26 06:49 +0000
+            created at 2026-05-27 04:40 +0000
         </p>
     </div>
 </footer>
