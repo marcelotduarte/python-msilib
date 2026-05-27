@@ -413,7 +413,7 @@ _directories: set[str] = set()
 class Directory:
     db: _Database
     cab: CAB
-    basedir: Directory
+    basedir: Directory | None
     physical: str
     logical: str
     component: str | None
@@ -427,7 +427,7 @@ class Directory:
         self,
         db: _Database,
         cab: CAB,
-        basedir: Directory,
+        basedir: Directory | None,
         physical: str,
         _logical: str,
         default: str,
@@ -791,8 +791,8 @@ class Dialog:
         attr: int,
         title: str,
         first: str,
-        default: str,
-        cancel: str,
+        default: str | None,
+        cancel: str | None,
     ) -> None:
         self.db = db
         self.name = name
