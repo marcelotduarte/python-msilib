@@ -36,7 +36,7 @@ name = "Marcelo Duarte"
 email = "marcelotduarte@users.noreply.github.com"
 
 [[project.authors]]
-name = " Martin v. Löwis"
+name = "Martin v. Löwis"
 email = "loewis@users.noreply.github.com"
 
 [project.urls]
@@ -46,9 +46,9 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 
 [dependency-groups]
 dev = [
-    "cibuildwheel>=3.4.1",
+    "cibuildwheel>=4.0.0",
     "prek>=0.4.0,<0.5.0",
-    "ty>=0.0.39",
+    "ty>=0.0.48",
 ]
 tests = [
     "coverage>=7.13.0",
