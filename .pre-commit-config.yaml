@@ -48,7 +48,7 @@ repos:
         types_or: [c, c++]
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: 515f543f5718ebfd6ce22e16708bb32c68ff96e1 # frozen: v3.8.3
+    rev: 06507ab9500d4a9919b5ebd76d9d5b7074f15c1f # frozen: v3.8.4
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
@@ -58,15 +58,10 @@ repos:
     hooks:
       - id: shellcheck
 
-  - repo: local
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: a71646c845a122391e3ce3a43502fcf4003d1efa # frozen: v0.0.48
     hooks:
-      - id: ty-check
-        name: typecheck
-        description: Type check python files with ty
-        entry: ty check
-        language: system
-        types: [python]
-        pass_filenames: false
+      - id: ty
 
   - repo: local
     hooks:
@@ -77,9 +72,6 @@ repos:
         files: ^(
           src/msilib/include/pythoncapi_compat.h|
           src/msilib/include/.*.h|src/msilib/.*.c)$
-
-  - repo: local
-    hooks:
       - id: requirements
         name: requirements
         language: system
