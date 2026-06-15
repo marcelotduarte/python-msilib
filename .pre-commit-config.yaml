@@ -23,7 +23,7 @@ repos:
     hooks:
       - id: validate-pyproject
         additional_dependencies:
-          - validate-pyproject-schema-store[all]>=2026.05.24
+          - validate-pyproject-schema-store[all]>=2026.5.28
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 22f0422809455ec89ffdcf5a00170ba816e42ddb # frozen: v0.15.16
