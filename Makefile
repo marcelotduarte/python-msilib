@@ -38,9 +38,6 @@ update: install
 	prek update --freeze
 	$(MAKE) prek
 
-.PHONY: upgrade
-upgrade: update
-
 .PHONY: wheel
 wheel:
 	./ci/build-wheel.sh --install

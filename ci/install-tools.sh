@@ -10,23 +10,29 @@ if [ -n "$1" ] && [ "$1" == "--help" ]; then
     exit 1
 fi
 
-# Detect environment
+# Detect environment. For mingw and conda environments, python is not required
+# to be installed, but will be installed by this script.
 IS_CONDA="0"
 IS_MINGW="0"
 IS_UV="0"
 IS_WINDOWS="0"
 if [ -n "$CONDA_EXE" ]; then
     IS_CONDA="1"
-elif [ -n "$MINGW_PACKAGE_PREFIX" ]; then
-    IS_MINGW="1"
 elif which python &>/dev/null; then
     PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
     IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
-    IS_UV="1"
+    IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo "1")
+    if ! [ "$IS_MINGW" == "1" ]; then
+        IS_UV="1"
+    fi
     python ci/requirements.py
 else
-    echo "error: Python is required."
-    exit 1
+    if [ -n "$MINGW_PACKAGE_PREFIX" ]; then
+        IS_MINGW="1"
+    else
+        echo "error: Python is required."
+        exit 1
+    fi
 fi
 
 # Install/update dev tools (including uv if required)
@@ -131,46 +137,13 @@ else
             env UV_INSTALL_DIR="$INSTALL_DIR" sh
     fi
 
-    # Lief is not available for Python free-threaded
-    PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
-    if [ "$IS_WINDOWS" == "1" ] && [ "$PY_ABI_THREAD" == "t" ]; then
-        # Packages to install
-        pkgs=()
-
-        # Dependencies of the project
-        if [ -f requirements.txt ]; then
-            while read -r line; do
-                if [[ $line != *sys_platform* ]] || \
-                   [[ $line == *sys_platform*==*win32* ]]; then
-                    name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                    if [ "$name" == "lief" ]; then continue; fi
-                    if [ "$name" == "tomli" ]; then continue; fi
-                    name_and_version=$(echo "$line" | awk '{ print $1 }')
-                    pkgs+=("$name_and_version")
-                fi
-            done < requirements.txt
-        fi
-
-        # pytest and dependencies
-        if [ "$INSTALL_TESTS" == "1" ] && [ -f tests/requirements.txt ]; then
-            while read -r line; do
-                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                pkgs+=("$name")
-            done < tests/requirements.txt
-        fi
-
-        echo "Install packages"
-        uv pip install --upgrade "${pkgs[@]}"
-
+    # Dependencies of the project
+    echo "Install packages"
+    if [ "$INSTALL_TESTS" == "1" ]; then
+        # including pytest and dependencies
+        uv pip install --upgrade -r pyproject.toml --group tests
     else
-        # Dependencies of the project
-        echo "Install packages"
-        if [ "$INSTALL_TESTS" == "1" ]; then
-            # including pytest and dependencies
-            uv pip install --upgrade -r pyproject.toml --group tests
-        else
-            uv pip install --upgrade -r pyproject.toml
-        fi
+        uv pip install --upgrade -r pyproject.toml
     fi
 fi
 
