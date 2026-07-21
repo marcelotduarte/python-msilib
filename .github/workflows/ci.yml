@@ -81,6 +81,7 @@ jobs:
       - pre_commit
       - type_check
     permissions:
+      contents: read
       id-token: write # Required for nested job 'publish'
 
   testpypi:
