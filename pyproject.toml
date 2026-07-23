@@ -48,7 +48,7 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 dev = [
     "cibuildwheel>=4.1.0",
     "prek>=0.4.10,<0.5.0",
-    "ty>=0.0.61",
+    "ty>=0.0.63",
 ]
 tests = [
     "coverage>=7.13.0",
