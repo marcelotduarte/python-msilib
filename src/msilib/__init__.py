@@ -433,15 +433,16 @@ class Directory:
         default: str,
         componentflags: int | None = None,
     ) -> None:
-        """Create a new directory in the Directory table. There is a current
-        component at each point in time for the directory, which is either
-        explicitly created through start_component, or implicitly when files
-        are added for the first time. Files are added into the current
-        component, and into the cab file. To create a directory, a base
-        directory object needs to be specified (can be None), the path to the
-        physical directory, and a logical directory name. Default specifies the
-        DefaultDir slot in the directory table. componentflags specifies the
-        default flags that new components get.
+        """Create a new directory in the Directory table.
+
+        There is a current component at each point in time for the directory,
+        which is either explicitly created through start_component, or
+        implicitly when files are added for the first time. Files are added
+        into the current component, and into the cab file. To create a
+        directory, a base directory object needs to be specified (can be None),
+        the path to the physical directory, and a logical directory name.
+        Default specifies the DefaultDir slot in the directory table.
+        componentflags specifies the default flags that new components get.
         """
         index = 1
         _logical = make_id(_logical)
@@ -476,11 +477,13 @@ class Directory:
         keyfile: str | None = None,
         uuid: str | None = None,
     ) -> None:
-        """Add an entry to the Component table, and make this component the
-        current for this directory. If no component name is given, the
-        directory name is used. If no feature is given, the current feature is
-        used. If no flags are given, the directory's default flags are used. If
-        no keyfile is given, the KeyPath is left null in the Component table.
+        """Add an entry to the Component table.
+
+        And make this component the current for this directory. If no component
+        name is given, the directory name is used. If no feature is given, the
+        current feature is used. If no flags are given, the directory's default
+        flags are used. If no keyfile is given, the KeyPath is left null in the
+        Component table.
         """
         if flags is None:
             flags = self.componentflags or 0
@@ -556,12 +559,13 @@ class Directory:
         version: str | None = None,
         language: str | None = None,
     ) -> str | None:
-        """Add a file to the current component of the directory, starting a new
-        one if there is no current component. By default, the file name in the
-        source and the file table will be identical. If the src file is
-        specified, it is interpreted relative to the current directory.
-        Optionally, a version and a language can be specified for the entry in
-        the File table.
+        """Add a file to the current component of the directory.
+
+        Starting a new one if there is no current component. By default, the
+        file name in the source and the file table will be identical. If the
+        src file is specified, it is interpreted relative to the current
+        directory. Optionally, a version and a language can be specified for
+        the entry in the File table.
         """
         if not self.component:
             self.start_component(self.logical, current_feature, 0)
@@ -638,7 +642,9 @@ class Directory:
     def glob(
         self, pattern: str, exclude: Container[str] | None = None
     ) -> list[str]:
-        """Add a list of files to the current component as specified in the
+        """Add a list of files to the current component.
+
+        Add a list of files to the current component as specified in the
         glob pattern. Individual files can be excluded in the exclude list.
         """
         try:

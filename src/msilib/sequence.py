@@ -1,4 +1,6 @@
-"""Table contents for the standard sequence tables:
+"""Table contents for the standard sequence tables.
+
+The standard sequence tables are:
 AdminExecuteSequence, AdminUISequence, AdvtExecuteSequence,
 InstallExecuteSequence, and InstallUISequence.
 """

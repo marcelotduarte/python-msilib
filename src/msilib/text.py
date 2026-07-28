@@ -1,5 +1,6 @@
-"""Definitions for the UIText and ActionText tables, for the standard installer
-actions.
+"""Definitions for the UIText and ActionText tables.
+
+For the standard installer actions.
 """
 
 from __future__ import annotations
