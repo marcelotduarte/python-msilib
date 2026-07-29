@@ -1,6 +1,7 @@
-"""The standard MSI schema for MSI 2.0, with the tables variable providing a
-list of table definitions, and _Validation_records providing the data for MSI
-validation.
+"""The standard MSI schema for MSI 2.0.
+
+With the tables variable providing a list of table definitions, and
+_Validation_records providing the data for MSI validation.
 """
 
 from __future__ import annotations
