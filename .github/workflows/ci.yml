@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: write # Required for pre-commit-ci lite
       id-token: write # Required for pre-commit-ci lite
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -46,7 +46,7 @@ jobs:
       matrix:
         os: [windows]
         os_version: [latest]
-        python-version: ["3.13", "3.14"]
+        python-version: ["3.13", "3.14", "3.15-dev"]
     defaults:
       run:
         shell: bash
@@ -68,8 +68,8 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
           enable-cache: true
 
-      - name: Install dependencies
-        run: ci/install-tools.sh --tests
+      - name: Install the dependencies for the tests
+        run: uv pip install --upgrade -r pyproject.toml --group tests
 
       - name: Type check
         uses: j178/prek-action@5337cb91e0fa35a7ff31b9ca345126d8bbbcdf16 # v2.0.6
@@ -95,10 +95,7 @@ jobs:
       matrix:
         os: [windows]
         os-version: [latest, 11-arm]
-        python-version: ["3.13", "3.14", "3.14t"]
-        exclude: # provisional
-          - os-version: 11-arm
-            python-version: "3.14t"
+        python-version: ["3.13", "3.14", "3.14t", "3.15-dev", "3.15t-dev"]
 
     defaults:
       run:
@@ -137,8 +134,8 @@ jobs:
           pattern: python-msilib-wheel-${{ matrix.os }}*
           path: wheelhouse
 
-      - name: Install dependencies to test
-        run: uv pip install -r pyproject.toml --upgrade --group tests
+      - name: Install the dependencies for the tests
+        run: uv pip install --upgrade -r pyproject.toml --group tests
 
       - name: Install python-msilib from wheelhouse
         run: |

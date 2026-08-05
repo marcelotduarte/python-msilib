@@ -17,17 +17,12 @@ permissions:
 jobs:
   matrix:
     name: Generate matrix of builds
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.14"
 
       - name: Extra includes
         id: includes
@@ -38,19 +33,19 @@ jobs:
                   "os": "windows",
                   "os-version": "latest",
                   "arch": "x86_64",
-                  "tag": "cp3{13,14,14t}-win_amd64",
+                  "tag": "cp3{13,14,14t,15,15t}-win_amd64",
               },
               {
                   "os": "windows",
                   "os-version": "11-arm",
                   "arch": "arm64",
-                  "tag": "cp3{13,14,14t}-win_arm64",
+                  "tag": "cp3{13,14,14t,15,15t}-win_arm64",
               },
               {
                   "os": "windows",
                   "os-version": "latest",
                   "arch": "x86",
-                  "tag": "cp3{13,14,14t}-win32",
+                  "tag": "cp3{13,14,14t,15,15t}-win32",
               },
             ]
           with open(os.environ["GITHUB_OUTPUT"], "a+") as f:

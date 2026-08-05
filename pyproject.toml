@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: Free Threading :: 2 - Beta",
     "Topic :: Software Development :: Build Tools",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -46,8 +47,8 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 
 [dependency-groups]
 dev = [
-    "cibuildwheel>=4.1.0",
-    "prek>=0.4.10,<0.5.0",
+    "cibuildwheel>=4.2.0",
+    "prek>=0.4.12,<0.5.0",
 ]
 tests = [
     "coverage>=7.13.0",
