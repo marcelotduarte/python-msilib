@@ -19,14 +19,14 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: 4b2e70d08cb2ccd26d1fba73588de41c7a5d50b7 # frozen: v0.25
+    rev: 17e12779811926f000bdfa1795f9e3735dd71ac3 # frozen: 0.26
     hooks:
       - id: validate-pyproject
         additional_dependencies:
-          - validate-pyproject-schema-store[all]==2026.08.01
+          - validate-pyproject-schema-store[all]==2026.8.15
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 39d9ac5938dadb73df0564a45f163e25ff9fa6e2 # frozen: v0.16.1
+    rev: aab412d509121cb5f7533134b7e67f9fab59c682 # frozen: v0.16.4
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes", "--unsafe-fixes"]
@@ -59,7 +59,7 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: cedca67f9a9e6303431e212951454426df990fae # frozen: v0.0.66
+    rev: 1241d80d7f628b8b0c60540b7a8c83b947136a4f # frozen: v0.0.74
     hooks:
       - id: ty
         args: [--no-sync]
