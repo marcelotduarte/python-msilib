@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=83,<85",
+    "setuptools~=84.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -47,8 +47,8 @@ Documentation = "https://docs.python.org/3.12/library/msilib.html"
 
 [dependency-groups]
 dev = [
-    "cibuildwheel>=4.2.0",
-    "prek>=0.4.12,<0.5.0",
+    "cibuildwheel>=4.2.1",
+    "prek>=0.5.4,<0.6.0",
 ]
 tests = [
     "coverage>=7.13.0",

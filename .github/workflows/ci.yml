@@ -17,6 +17,9 @@ permissions:
 jobs:
   pre_commit:
     name: Pre commit
+    if: |
+      contains(github.event.pull_request.title, '[skip tests]') == false &&
+      contains(github.event.head_commit.message, '[skip tests]') == false
     permissions:
       contents: write # Required for pre-commit-ci lite
       id-token: write # Required for pre-commit-ci lite
@@ -78,7 +81,7 @@ jobs:
 
   build_wheel:
     name: Build wheels
-    uses: ./.github/workflows/build.yml
+    uses: $/.github/workflows/build.yml
     needs:
       - pre_commit
       - type_check
