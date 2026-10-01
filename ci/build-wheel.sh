@@ -16,7 +16,9 @@ if [ -n "$UV_PYTHON" ]; then
     PYTHON=$(uv python find "$UV_PYTHON")
 elif which python &>/dev/null; then
     PYTHON=python
-else
+fi
+if [ -z "$PYTHON" ]; then
+    echo "Python not found!"
     exit 1
 fi
 PY_PLATFORM=$($PYTHON -c "import sysconfig; print(sysconfig.get_platform(), end='')")
@@ -59,6 +61,7 @@ if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "  TAG       Force build the wheel for the given identifier."
     echo "            [default: $BUILD_TAG_DEFAULT]"
     echo "  --install Install after build [default on local builds]."
+    echo "  --sdist   Build a source distribution [default on Linux x64]."
     exit 1
 fi
 
@@ -67,6 +70,11 @@ if [ "$CI" == "true" ]; then
     INSTALL="0"
 else
     INSTALL="1"
+fi
+if [ "$PY_PLATFORM" == "linux-x86_64" ]; then
+    BUILD_SDIST="1"
+else
+    BUILD_SDIST="0"
 fi
 while [ -n "$1" ]; do
     if [ "$1" == "--all" ]; then
@@ -77,6 +85,8 @@ while [ -n "$1" ]; do
         fi
     elif [ "$1" == "--install" ]; then
         INSTALL="1"
+    elif [ "$1" == "--sdist" ]; then
+        BUILD_SDIST="1"
     else
         BUILD_TAG="$1"
     fi
@@ -102,7 +112,7 @@ _get_dirty () {
 _build_sdist () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --sdist -o wheelhouse
-    elif [ "$PY_PLATFORM" == "linux-x86_64" ] || [ "$BUILD_SDIST" == "true" ]; then
+    elif [ "$BUILD_SDIST" == "1" ]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
     fi
 }
@@ -110,26 +120,34 @@ _build_sdist () {
 _build_wheel () {
     local args
     read -ra args <<<"$*"
+    rm -f "$WHEELHOUSE/$PKG_NAME"
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --wheel -o wheelhouse
+        if [ "$IS_CONDA" == "1" ]; then
+            rm -rf "$WHEELHOUSE/conda/$LOWER_NAME"
+            mkdir -p "$WHEELHOUSE/conda/$LOWER_NAME"
+            $CONDA_EXE pypi convert "$WHEELHOUSE/$PKG_NAME" \
+                --output-folder "$WHEELHOUSE/conda/$LOWER_NAME/noarch"
+            $CONDA_EXE index "$WHEELHOUSE/conda/$LOWER_NAME"
+        fi
     else
         if [ "$CI" == "true" ] && [[ $PY_PLATFORM == win* ]]; then
             export UV_LINK_MODE=copy
         fi
         if [ "$ZIP_SAFE" == "true" ]; then
-            uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
-        elif [[ $PY_PLATFORM == win* ]] && [[ ${args[0]} == *--only* ]]; then
-            uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
-        elif [[ $PY_PLATFORM == macos* ]] && [[ ${args[0]} == *--only* ]]; then
+            UV_NO_BUILD=0 \
             uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
         else
             if ! [ "$CI" == "true" ] && which podman &>/dev/null; then
                 export CIBW_CONTAINER_ENGINE=podman
             fi
-            if [ -f "$INSTALL_DIR/cibuildwheel" ]; then
+            if which uv &>/dev/null; then
+                uv tool run cibuildwheel "${args[@]}"
+            elif [ -f "$INSTALL_DIR/cibuildwheel" ]; then
                 "$INSTALL_DIR/cibuildwheel" "${args[@]}"
             else
-                uv tool run cibuildwheel "${args[@]}"
+                echo "cibuildwheel not found!"
+                exit 1
             fi
         fi
     fi
@@ -154,6 +172,7 @@ else
         NORMALIZED_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
     fi
 fi
+LOWER_NAME=$(echo "$NORMALIZED_NAME" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
 if [[ $VERSION == *-* ]]; then
     NORMALIZED_VERSION=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
 else
@@ -163,23 +182,25 @@ echo "Name: $NAME ($NORMALIZED_NAME)"
 echo "Version: $VERSION ($NORMALIZED_VERSION)"
 echo "::endgroup::"
 
-mkdir -p wheelhouse >/dev/null
+WHEELHOUSE=$PWD/wheelhouse
+mkdir -p "$WHEELHOUSE" >/dev/null
 DIRTY=$(_get_dirty)
-FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION"
-FILEEXISTS=$(find "wheelhouse/$FILEMASK.tar.gz" 2>/dev/null || echo '')
+PKG_BASENAME="$NORMALIZED_NAME-$NORMALIZED_VERSION"
+FILEEXISTS=$(find "$WHEELHOUSE/$PKG_BASENAME.tar.gz" 2>/dev/null || echo '')
 if [ "$DIRTY" != "0" ] || [ -z "$FILEEXISTS" ]; then
     echo "::group::Build sdist"
     _build_sdist
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
+PKG_NAME=$PKG_BASENAME.whl
 if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
     if [ "$ZIP_SAFE" == "true" ]; then
-        FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$BUILD_TAG_DEFAULT"
+        PKG_NAME="$PKG_BASENAME-$BUILD_TAG_DEFAULT.whl"
     else
-        FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
+        PKG_NAME="$PKG_BASENAME-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK.whl"
     fi
-    FILEEXISTS=$(find "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
+    FILEEXISTS=$(find "$WHEELHOUSE/$PKG_NAME" 2>/dev/null || echo '')
     if [ "$DIRTY" != "0" ] || [ -z "$FILEEXISTS" ]; then
         _build_wheel --only "$BUILD_TAG_DEFAULT"
     fi
@@ -192,12 +213,21 @@ echo "::endgroup::"
 
 if [ "$INSTALL" == "1" ]; then
     echo "::group::Install $NORMALIZED_NAME $NORMALIZED_VERSION"
-    if [[ $PY_PLATFORM == mingw* ]]; then
-        PIP_COMMAND="pip install --break-system-packages --force-reinstall"
+    if [ "$IS_CONDA" == "1" ]; then
+        PKG_CONDA="$WHEELHOUSE/conda/$LOWER_NAME/noarch/$NAME-$NORMALIZED_VERSION-pypi_0.conda"
+        if ! [ -f "$PKG_CONDA" ]; then
+            PKG_CONDA="$WHEELHOUSE/conda/$LOWER_NAME/noarch/$PKG_BASENAME-pypi_0.conda"
+        fi
+        $CONDA_EXE remove "$NORMALIZED_NAME" --force --yes || true
+        $CONDA_EXE install "$PKG_CONDA" --no-deps --yes
     else
-        PIP_COMMAND="uv pip install --no-build --prerelease=allow --reinstall"
+        if [ "$IS_MINGW" == "1" ]; then
+            PIP_COMMAND="pip install --break-system-packages --force-reinstall"
+        else
+            PIP_COMMAND="uv pip install --no-build --prerelease=allow --reinstall"
+        fi
+        $PIP_COMMAND "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f "$WHEELHOUSE" \
+            --no-deps --no-index
     fi
-    $PIP_COMMAND "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f wheelhouse \
-        --no-deps --no-index
     echo "::endgroup::"
 fi
