@@ -73,6 +73,7 @@ jobs:
           activate-environment: true
           cache-dependency-glob: "pyproject.toml"
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
 
       - name: Install the dependencies for the tests
         run: uv pip install --upgrade -r pyproject.toml --group tests
@@ -101,7 +102,7 @@ jobs:
       matrix:
         os: [windows]
         os-version: [latest, 11-arm]
-        python-version: ["3.13", "3.14", "3.14t", "3.15", "3.15t"]
+        python-version: ["3.13", "3.14", "3.14t", "3.15-dev", "3.15t-dev"]
 
     defaults:
       run:
