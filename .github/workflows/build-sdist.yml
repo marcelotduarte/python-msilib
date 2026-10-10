@@ -15,7 +15,7 @@ on:
         type: boolean
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: build-sdist-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
