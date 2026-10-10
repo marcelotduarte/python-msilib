@@ -24,7 +24,7 @@ permissions:
 jobs:
   build_sdist:
     name: Build sdist
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     env:
       UV_NO_PROGRESS: true
       UV_SYSTEM_PYTHON: true
