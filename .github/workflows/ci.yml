@@ -43,13 +43,16 @@ jobs:
 
   type_check:
     name: Type check
+    if: |
+      contains(github.event.pull_request.title, '[skip tests]') == false &&
+      contains(github.event.head_commit.message, '[skip tests]') == false
     runs-on: ${{ matrix.os }}-${{ matrix.os_version }}
     strategy:
       fail-fast: false
       matrix:
         os: [windows]
         os_version: [latest]
-        python-version: ["3.13", "3.14", "3.15-dev"]
+        python-version: ["3.13", "3.14", "3.15"]
     defaults:
       run:
         shell: bash
@@ -70,6 +73,7 @@ jobs:
           activate-environment: true
           cache-dependency-glob: "pyproject.toml"
           enable-cache: true
+          python-version: ${{ matrix.python-version }}
 
       - name: Install the dependencies for the tests
         run: uv pip install --upgrade -r pyproject.toml --group tests
@@ -81,7 +85,7 @@ jobs:
 
   build_wheel:
     name: Build wheels
-    uses: $/.github/workflows/build.yml
+    uses: $/.github/workflows/build-wheel.yml
     needs:
       - pre_commit
       - type_check
@@ -131,7 +135,7 @@ jobs:
           enable-cache: true
 
       - name: Download the wheel
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           merge-multiple: true
           pattern: python-msilib-wheel-${{ matrix.os }}*
@@ -174,7 +178,7 @@ jobs:
           persist-credentials: true
 
       - name: Download coverage data
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: cov-*
           merge-multiple: true
